@@ -1,0 +1,28 @@
+meta {
+  name: Modify user
+  type: http
+  seq: 3
+}
+
+put {
+  url: http://{{host}}:{{port}}/user/{{user_id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Yaash Jain",
+    "email": "yaash@test.com",
+    "kind": "admin"
+  }
+}
+
+vars:pre-request {
+  user_id: b19b65d5-ac1f-4b84-ab88-d00def5a50c8
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
