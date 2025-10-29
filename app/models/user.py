@@ -18,6 +18,7 @@ class User(UserCreate):
     created: datetime = Field(default_factory=datetime.now)
 
 
-class UserKind(int, Enum):
-    ADMIN = 0
-    CLIENT = 1
+class UserKind(str, Enum):
+    ADMIN = "admin"
+    CLIENT = "client"
+    TEST = "test"

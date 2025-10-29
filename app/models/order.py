@@ -16,15 +16,17 @@ class OrderStatus(str, Enum):
 
 
 class OrderCreate(BaseModel):
-    client: UUID
+    client_id: UUID
     products: dict[UUID, dict[ProductSize, PositiveInt]] = {}
 
 
 class Order(OrderCreate):
     id: UUID = Field(default_factory=uuid4)
-    status: OrderStatus = OrderStatus.PENDING  # default order state is pending
 
-    bill: UUID | None = None
+    # default order state is pending
+    status: OrderStatus = OrderStatus.PENDING
+
+    bill_id: UUID | None = None
 
     # important dates
     created: datetime = Field(default_factory=datetime.now)
@@ -33,4 +35,3 @@ class Order(OrderCreate):
 
     # tracking remaining payments
     total: NonNegativeFloat | None = None
-    payments: list[UUID] = []
