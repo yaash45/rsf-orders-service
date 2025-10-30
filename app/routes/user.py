@@ -2,6 +2,7 @@ from uuid import UUID
 
 from fastapi import status
 from fastapi.exceptions import HTTPException
+from fastapi.responses import Response
 from fastapi.routing import APIRouter
 
 from ..models.user import User, UserCreate
@@ -22,8 +23,20 @@ def get_all_users() -> list[User]:
     return list(users.values())
 
 
-@router.post("/", response_model=list[User], status_code=status.HTTP_201_CREATED)
-def create_users(payload: list[UserCreate]) -> list[User]:
+@router.post(
+    "/",
+    responses={
+        status.HTTP_204_NO_CONTENT: {
+            "description": "No users created (empty input list).",
+        },
+        status.HTTP_400_BAD_REQUEST: {
+            "description": "User with the same email already exists.",
+        },
+    },
+    response_model=None,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_users(payload: list[UserCreate]) -> Response | list[User]:
     """
     Create a list of users from a list of UserCreate objects.
 
@@ -37,6 +50,9 @@ def create_users(payload: list[UserCreate]) -> list[User]:
         HTTPException: If a user with the same email already exists.
     """
     newly_created_users: list[User] = []
+
+    if len(payload) == 0:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     cur_email_set = {user.email for user in users.values()}
 
