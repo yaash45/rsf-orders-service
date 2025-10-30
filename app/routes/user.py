@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from fastapi import status
 from fastapi.exceptions import HTTPException
 from fastapi.routing import APIRouter
 
@@ -21,21 +22,40 @@ def get_all_users() -> list[User]:
     return list(users.values())
 
 
-@router.post("/", response_model=User, status_code=201)
-def create_user(request: UserCreate) -> User:
+@router.post("/", response_model=list[User], status_code=status.HTTP_201_CREATED)
+def create_users(payload: list[UserCreate]) -> list[User]:
     """
-    Create a new user
+    Create a list of users from a list of UserCreate objects.
 
     Args:
-        request: UserCreate
+        payload (list[UserCreate]): A list of UserCreate objects.
 
     Returns:
-        User: The newly created user
-    """
-    new_user = User(**request.model_dump())
-    users[new_user.id] = new_user
+        list[User]: A list of newly created users.
 
-    return new_user
+    Raises:
+        HTTPException: If a user with the same email already exists.
+    """
+    newly_created_users: list[User] = []
+
+    cur_email_set = {user.email for user in users.values()}
+
+    for item in payload:
+        if item.email in cur_email_set:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"User with email {item.email} already exists.",
+            )
+
+        u = User(**item.model_dump())
+        newly_created_users.append(u)
+        cur_email_set.add(u.email)
+
+    # once all email uniqueness has been guaranteed, register users
+    for user in newly_created_users:
+        users[user.id] = user
+
+    return newly_created_users
 
 
 @router.put("/{id}", response_model=User)
@@ -56,7 +76,10 @@ def update_user(id: UUID, request: UserCreate) -> User:
     user = users.get(id, None)
 
     if user is None:
-        raise HTTPException(status_code=404, detail=f"Product {id} not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product {id} not found",
+        )
 
     kwargs = request.model_dump()
     kwargs["id"] = user.id

@@ -5,21 +5,17 @@ meta {
 }
 
 put {
-  url: http://{{host}}:{{port}}/user/{{user_id}}
+  url: http://{{host}}:{{port}}/user/4a6d1d96-9407-428b-9fcd-725a5ab5f558
   body: json
   auth: inherit
 }
 
 body:json {
   {
-    "name": "Yaash Jain",
-    "email": "yaash@test.com",
-    "kind": "admin"
+    "name": "Arnold S",
+    "email": "arnold@test.com",
+    "kind": "test"
   }
-}
-
-vars:pre-request {
-  user_id: b19b65d5-ac1f-4b84-ab88-d00def5a50c8
 }
 
 settings {
