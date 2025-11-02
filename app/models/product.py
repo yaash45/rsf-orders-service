@@ -19,6 +19,11 @@ class Product(ProductCreate):
     created: datetime = Field(default_factory=datetime.now)
 
 
+class ProductSummary(BaseModel):
+    id: UUID
+    name: str
+
+
 class ProductSize(str, Enum):
     TEN_ML = "10 mL"
     THIRTY_ML = "30 mL"
@@ -32,5 +37,4 @@ class ProductSize(str, Enum):
     TEN_L = "10 L"
 
 
-class Catalog(BaseModel):
-    items: list[UUID]
+class Catalog(dict[UUID, Product]): ...
