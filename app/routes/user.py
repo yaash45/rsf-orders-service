@@ -97,7 +97,16 @@ def update_user(id: UUID, request: UserCreate) -> User:
             detail=f"Product {id} not found",
         )
 
+    cur_email_set = {user.email for user in users.values()}
+
     kwargs = request.model_dump()
+
+    if kwargs["email"] in cur_email_set:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"User with email {kwargs['email']} already exists.",
+        )
+
     kwargs["id"] = user.id
     kwargs["created"] = user.created
 
