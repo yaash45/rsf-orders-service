@@ -1,0 +1,17 @@
+import logging
+
+from rich.logging import RichHandler
+
+FORMAT = "%(message)s"
+logging.basicConfig(
+    level=logging.INFO,
+    format=FORMAT,
+    datefmt="[%X]",
+    handlers=[
+        RichHandler(),
+    ],
+)
+
+
+def getLogger(name: str) -> logging.Logger:
+    return logging.getLogger(name)

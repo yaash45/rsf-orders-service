@@ -4,7 +4,7 @@ from fastapi.exceptions import HTTPException
 from fastapi.routing import APIRouter
 
 from ..errors import NotFoundResponse
-from ..models.product import (
+from ..schemas.product import (
     Catalog,
     Product,
     ProductCreate,
