@@ -2,7 +2,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.core.db import Base, engine
+from app.core.db.base import Base
+from app.core.db.session import engine
 from app.core.logging import getLogger
 
 from .routes import product, user

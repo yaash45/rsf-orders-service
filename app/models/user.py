@@ -1,6 +1,6 @@
 from sqlalchemy import UUID, Column, DateTime, String
 
-from app.core.db import Base
+from app.core.db.base import Base
 
 
 class UserModel(Base):
