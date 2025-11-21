@@ -1,0 +1,16 @@
+meta {
+  name: Delete single user
+  type: http
+  seq: 2
+}
+
+delete {
+  url: http://{{host}}:{{port}}/users/3513a8b2-6616-448b-a721-cd5ea6d97deb
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

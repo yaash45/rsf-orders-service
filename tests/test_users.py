@@ -1,22 +1,6 @@
 from json import dumps, loads
 
 from fastapi import status
-from fastapi.testclient import TestClient
-from pytest import fixture
-
-from app.main import app
-
-test_app = TestClient(app=app)
-
-
-@fixture(autouse=True)
-def clear_users():
-    """
-    Clears the users on the server after each test.
-    """
-    from app.routes.user import users
-
-    users.clear()
 
 
 def _build_create_users_payload(
@@ -35,7 +19,7 @@ def _build_create_users_payload(
     return [{"name": item[0], "email": item[1], "kind": item[2]} for item in data]
 
 
-def test_create_users_success():
+def test_create_users_success(test_app):
     # one user in request
     payload = _build_create_users_payload(
         [
@@ -113,7 +97,7 @@ def test_create_users_success():
     ]
 
 
-def test_create_user_with_invalid_kind():
+def test_create_user_with_invalid_kind(test_app):
     """
     The user's in the system will have a kind value,
     that falls in a finite set of strings.
@@ -144,7 +128,7 @@ def test_create_user_with_invalid_kind():
     assert result.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
-def test_create_user_with_duplicate_emails():
+def test_create_user_with_duplicate_emails(test_app):
     """
     Tests that the server ensures that all email addresses
     entered into the system are unique
@@ -189,7 +173,7 @@ def test_create_user_with_duplicate_emails():
     assert result.status_code == status.HTTP_400_BAD_REQUEST
 
 
-def test_update_user():
+def test_update_user(test_app):
     # add one user
     response = test_app.post(
         "/users",
@@ -203,10 +187,14 @@ def test_update_user():
     )
 
     new_user = loads(response.content)[0]
+    user_id = new_user.get("id", None)
+
+    if user_id is None:
+        raise AssertionError("New user created with None id")
 
     # modify user
     response = test_app.put(
-        f"/users/{new_user.get('id', '')}",
+        f"/users/{user_id}",
         content=dumps(
             _build_create_users_payload(
                 [
@@ -219,8 +207,8 @@ def test_update_user():
     assert response.status_code == status.HTTP_200_OK
 
     # get the user
-    response = test_app.get("/users")
-    modified_user = loads(response.content)[0]
+    response = test_app.get(f"/users/{user_id}")
+    modified_user = loads(response.content)
     assert modified_user.get("email", "") == "test_new@foo.com"
 
     # even a PUT request should ensure email uniqueness
@@ -236,9 +224,13 @@ def test_update_user():
     )
 
     new_user = loads(response.content)[0]
+    user_id = new_user.get("id", None)
+
+    if user_id is None:
+        raise AssertionError("New user created with None id")
 
     response = test_app.put(
-        f"/users/{new_user.get('id', '')}",
+        f"/users/{user_id}",
         content=dumps(
             _build_create_users_payload(
                 [
