@@ -5,7 +5,7 @@ from fastapi import Depends, status
 from fastapi.exceptions import HTTPException
 from fastapi.responses import Response
 from fastapi.routing import APIRouter
-from sqlalchemy import select, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -187,3 +187,35 @@ def update_user(
         )
 
     return updated_user
+
+
+@router.delete("/{id}", response_model=User, status_code=status.HTTP_200_OK)
+def delete_user(id: UUID, db: Session = Depends(get_db)) -> Response | User:
+    result = db.execute(
+        delete(UserModel)
+        .where(UserModel.id == id)
+        .returning(
+            UserModel.id,
+            UserModel.name,
+            UserModel.email,
+            UserModel.kind,
+            UserModel.created,
+        )
+    ).fetchall()
+
+    if not result:
+        msg = f"No-op. User with id '{id}' does not exist"
+        logger.info(msg)
+        return Response(status_code=status.HTTP_200_OK, content=msg)
+
+    db.commit()
+
+    deleted_user = result[0]
+
+    return User(
+        id=deleted_user.id,
+        name=deleted_user.name,
+        email=deleted_user.email,
+        kind=deleted_user.kind,
+        created=deleted_user.created,
+    )
