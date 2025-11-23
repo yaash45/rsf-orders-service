@@ -163,7 +163,7 @@ def update_user(
     user = None
     updated_user = None
 
-    user = db.execute(select(UserModel).where(UserModel.id == id)).scalar_one()
+    user = db.execute(select(UserModel).where(UserModel.id == id)).scalar_one_or_none()
 
     if user is None:
         raise HTTPException(
