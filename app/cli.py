@@ -1,20 +1,15 @@
-import os
-
 import uvicorn
-from dotenv import load_dotenv
 
+from app.core.config import Environments, config
 from app.core.logging import getLogger
-
-load_dotenv(".env")
 
 logger = getLogger(__name__)
 
 
 def main():
-    host = os.environ.get("HOST", None)
-    port = os.environ.get("PORT", None)
-    reload = os.environ.get("RELOAD_SERVER", False)
-    worker_count = os.environ.get("WORKER_COUNT", None)
+    host = config.HOST
+    port = config.PORT
+    reload = config.ENVIRONMENT == Environments.DEV
 
     if host is None or port is None:
         logger.error(
@@ -25,7 +20,6 @@ def main():
     uvicorn.run(
         "app.main:app",
         host=host,
-        port=int(port),
+        port=port,
         reload=bool(reload),
-        workers=int(worker_count) if worker_count else None,
     )

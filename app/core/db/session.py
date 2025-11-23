@@ -1,14 +1,12 @@
-import os
 from typing import Any
 
 import orjson
-from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-load_dotenv(".env")
+from app.core.config import config
 
-DATABASE_URL = os.getenv("DATABASE_URL", None)
+DATABASE_URL = config.DB_URL
 
 if DATABASE_URL is None:
     raise OSError(
