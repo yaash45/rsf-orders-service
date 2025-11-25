@@ -28,4 +28,4 @@ app = FastAPI(
 )
 
 app.include_router(product.router, prefix="/product", tags=["product"])
-app.include_router(user.router, prefix="/users", tags=["users"])
+app.include_router(user.router, tags=["users"])

@@ -19,7 +19,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/{id}",
+    "/users/{id}",
     responses={
         status.HTTP_404_NOT_FOUND: {
             "description": "User not found",
@@ -55,7 +55,7 @@ def get_user_by_id(id: UUID, db: Session = Depends(get_db)) -> User:
     return User.model_validate(db_user, from_attributes=True)
 
 
-@router.get("/", response_model=list[User])
+@router.get("/users", response_model=list[User])
 def get_all_users(db: Session = Depends(get_db)) -> list[User] | None:
     """
     Return a list of all users.
@@ -72,7 +72,7 @@ def get_all_users(db: Session = Depends(get_db)) -> list[User] | None:
 
 
 @router.post(
-    "/",
+    "/users",
     responses={
         status.HTTP_204_NO_CONTENT: {
             "description": "No users created (empty input list).",
@@ -142,7 +142,7 @@ def create_users(
     return users_to_create
 
 
-@router.put("/{id}", response_model=User)
+@router.put("/users/{id}", response_model=User)
 def update_user(
     id: UUID, request: UserCreate, db: Session = Depends(get_db)
 ) -> User | None:
@@ -189,7 +189,7 @@ def update_user(
     return updated_user
 
 
-@router.delete("/{id}", response_model=User, status_code=status.HTTP_200_OK)
+@router.delete("/users/{id}", response_model=User, status_code=status.HTTP_200_OK)
 def delete_user(id: UUID, db: Session = Depends(get_db)) -> Response | User:
     result = db.execute(
         delete(UserModel)
