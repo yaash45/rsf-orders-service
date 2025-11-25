@@ -2,12 +2,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.api.v0 import product, user
 from app.core.config import Environments, config
-from app.core.db.base import Base
-from app.core.db.session import engine
 from app.core.logging import getLogger
-
-from .routes import product, user
+from app.db import Base, engine
 
 logger = getLogger(__name__)
 

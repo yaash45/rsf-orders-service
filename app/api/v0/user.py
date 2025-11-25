@@ -9,9 +9,9 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from ..core.db.session import get_db
-from ..models.user import UserModel
-from ..schemas.user import User, UserCreate
+from app.db import get_db
+from app.db.schemas.user import User as UserModel
+from app.models.user import User, UserCreate
 
 logger = getLogger(__name__)
 

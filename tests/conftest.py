@@ -5,8 +5,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import StaticPool, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.core.db.base import Base
-from app.core.db.session import get_db
+from app.db import Base, get_db
 from app.main import app
 
 # Use a completely isolated in-memory database

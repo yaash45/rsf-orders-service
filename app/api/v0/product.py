@@ -3,8 +3,8 @@ from uuid import UUID
 from fastapi.exceptions import HTTPException
 from fastapi.routing import APIRouter
 
-from ..errors import NotFoundResponse
-from ..schemas.product import (
+from app.exceptions import NotFoundResponse
+from app.models.product import (
     Catalog,
     Product,
     ProductCreate,

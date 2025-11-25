@@ -1,16 +1,26 @@
-from sqlalchemy import UUID, Column, DateTime, String
+from __future__ import annotations
 
-from app.core.db.base import Base
+from datetime import datetime
+from enum import Enum
+from uuid import UUID, uuid4
+
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
-class UserModel(Base):
-    __tablename__ = "User"
+class UserCreate(BaseModel):
+    name: str
+    email: EmailStr
+    kind: UserKind
 
-    id = Column(UUID, primary_key=True)
-    created = Column(DateTime, nullable=False)
-    name = Column(String, nullable=False)  # TODO: consider capping length
-    email = Column(String, unique=True, nullable=False)
-    kind = Column(String(10), nullable=False)
 
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} name={self.name}, email={self.email}, created={self.created}, kind={self.kind}, id={self.id}>"
+class User(UserCreate):
+    id: UUID = Field(default_factory=uuid4)
+    created: datetime = Field(default_factory=datetime.now)
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UserKind(str, Enum):
+    ADMIN = "admin"
+    CLIENT = "client"
+    TEST = "test"
