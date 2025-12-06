@@ -1,3 +1,9 @@
+# ruff: noqa: E402
+
+from sqlalchemy.orm import declarative_base
+
+Base = declarative_base()
+
 from typing import Any
 
 import orjson
@@ -5,6 +11,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.core.config import config
+from app.db.schemas.user import UserDb  # noqa: F401
 
 DATABASE_URL = config.DB_URL
 
@@ -37,6 +44,12 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def get_db():
+    """
+    Yields a database session.
+
+    The session is automatically rolled back if an exception occurs,
+    and automatically closed when the context manager exits.
+    """
     db = SessionLocal()
     try:
         yield db
