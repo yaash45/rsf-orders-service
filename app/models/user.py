@@ -1,22 +1,28 @@
 from __future__ import annotations
 
-from datetime import datetime
 from enum import Enum
-from uuid import UUID, uuid4
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr
+
+from . import Identifiable, TimeStamped
 
 
-class UserCreate(BaseModel):
+class UserBase(BaseModel):
     name: str
     email: EmailStr
     kind: UserKind
 
 
-class User(UserCreate):
-    id: UUID = Field(default_factory=uuid4)
-    created: datetime = Field(default_factory=datetime.now)
+class UserCreate(UserBase, TimeStamped): ...
 
+
+class UserUpdate(Identifiable):
+    name: str | None
+    email: str | None
+    kind: UserKind | None
+
+
+class UserPublic(UserBase, Identifiable, TimeStamped):
     model_config = ConfigDict(from_attributes=True)
 
 

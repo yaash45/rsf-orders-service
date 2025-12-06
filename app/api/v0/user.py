@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from logging import getLogger
 from uuid import UUID
 
@@ -11,11 +12,11 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.db.schemas.user import User as UserModel
-from app.models.user import User, UserCreate
+from app.models.user import UserCreate, UserPublic, UserUpdate
 
 logger = getLogger(__name__)
 
-router = APIRouter()
+router = APIRouter(prefix="/v0")
 
 
 @router.get(
@@ -25,10 +26,10 @@ router = APIRouter()
             "description": "User not found",
         },
     },
-    response_model=None,
+    response_model=UserPublic,
     status_code=200,
 )
-def get_user_by_id(id: UUID, db: Session = Depends(get_db)) -> User:
+def get_user_by_id(id: UUID, db: Session = Depends(get_db)) -> UserPublic:
     """
     Returns a single User queried by id
 
@@ -52,11 +53,11 @@ def get_user_by_id(id: UUID, db: Session = Depends(get_db)) -> User:
             detail=f"User with id = {id} not found.",
         )
 
-    return User.model_validate(db_user, from_attributes=True)
+    return UserPublic.model_validate(db_user, from_attributes=True)
 
 
-@router.get("/users", response_model=list[User])
-def get_all_users(db: Session = Depends(get_db)) -> list[User] | None:
+@router.get("/users", response_model=list[UserPublic])
+def get_all_users(db: Session = Depends(get_db)) -> list[UserPublic]:
     """
     Return a list of all users.
 
@@ -64,9 +65,8 @@ def get_all_users(db: Session = Depends(get_db)) -> list[User] | None:
         list[User]: A list of all users.
     """
     users = []
-
     result = db.query(UserModel).all()
-    users = [User.model_validate(r, from_attributes=True) for r in result]
+    users = [UserPublic.model_validate(r, from_attributes=True) for r in result]
 
     return users
 
@@ -86,7 +86,7 @@ def get_all_users(db: Session = Depends(get_db)) -> list[User] | None:
 )
 def create_users(
     payload: list[UserCreate], db: Session = Depends(get_db)
-) -> Response | list[User]:
+) -> Response | list[UserPublic]:
     """
     Create a list of users from a list of UserCreate objects.
 
@@ -102,7 +102,7 @@ def create_users(
     if not payload:
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
-    users_to_create = [User(**uc.model_dump()) for uc in payload]
+    users_to_create = [UserPublic(**uc.model_dump()) for uc in payload]
 
     db_users: list[UserModel] = []
 
@@ -142,10 +142,10 @@ def create_users(
     return users_to_create
 
 
-@router.put("/users/{id}", response_model=User)
+@router.put("/users/{id}", response_model=UserPublic)
 def update_user(
-    id: UUID, request: UserCreate, db: Session = Depends(get_db)
-) -> User | None:
+    id: UUID, request: UserUpdate, db: Session = Depends(get_db)
+) -> UserPublic | None:
     """
     Update an existing user.
 
@@ -171,10 +171,11 @@ def update_user(
             detail=f"User with '{id}' not found",
         )
 
-    kwargs = request.model_dump()
+    kwargs = request.model_dump(exclude_none=True)
     kwargs["id"] = user.id
     kwargs["created"] = user.created
-    updated_user = User(**kwargs)
+    kwargs["modified"] = datetime.now(tz=timezone.utc)
+    updated_user = UserPublic(**kwargs)
 
     try:
         db.execute(update(UserModel).where(UserModel.id == id).values(kwargs))
@@ -189,8 +190,8 @@ def update_user(
     return updated_user
 
 
-@router.delete("/users/{id}", response_model=User, status_code=status.HTTP_200_OK)
-def delete_user(id: UUID, db: Session = Depends(get_db)) -> Response | User:
+@router.delete("/users/{id}", response_model=UserPublic, status_code=status.HTTP_200_OK)
+def delete_user(id: UUID, db: Session = Depends(get_db)) -> Response | UserPublic:
     result = db.execute(
         delete(UserModel)
         .where(UserModel.id == id)
@@ -212,7 +213,7 @@ def delete_user(id: UUID, db: Session = Depends(get_db)) -> Response | User:
 
     deleted_user = result[0]
 
-    return User(
+    return UserPublic(
         id=deleted_user.id,
         name=deleted_user.name,
         email=deleted_user.email,

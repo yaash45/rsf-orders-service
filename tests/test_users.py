@@ -2,6 +2,8 @@ from json import dumps, loads
 
 from fastapi import status
 
+BASE_ENDPOINT: str = "/v0/users"
+
 
 def _build_create_users_payload(
     data: list[tuple[str, str, str]],
@@ -27,7 +29,7 @@ def test_create_users_success(test_app):
         ],
     )
 
-    result = test_app.post("/users", content=dumps(payload))
+    result = test_app.post(BASE_ENDPOINT, content=dumps(payload))
 
     assert result.status_code == status.HTTP_201_CREATED
 
@@ -48,7 +50,7 @@ def test_create_users_success(test_app):
         ],
     )
 
-    result = test_app.post("/users", content=dumps(payload))
+    result = test_app.post(BASE_ENDPOINT, content=dumps(payload))
 
     assert result.status_code == status.HTTP_201_CREATED
 
@@ -74,12 +76,12 @@ def test_create_users_success(test_app):
     # empty payload
     payload = []
 
-    result = test_app.post("/users", content=dumps(payload))
+    result = test_app.post(BASE_ENDPOINT, content=dumps(payload))
 
     assert result.status_code == status.HTTP_204_NO_CONTENT
 
     # try get request
-    result = test_app.get("/users")
+    result = test_app.get(BASE_ENDPOINT)
 
     assert result.status_code == status.HTTP_200_OK
 
@@ -112,7 +114,7 @@ def test_create_user_with_invalid_kind(test_app):
         ]
     )
 
-    result = test_app.post("/users", content=dumps(payload))
+    result = test_app.post(BASE_ENDPOINT, content=dumps(payload))
 
     assert result.status_code == status.HTTP_201_CREATED
 
@@ -123,7 +125,7 @@ def test_create_user_with_invalid_kind(test_app):
         ]
     )
 
-    result = test_app.post("/users", content=dumps(payload))
+    result = test_app.post(BASE_ENDPOINT, content=dumps(payload))
 
     assert result.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
@@ -142,13 +144,13 @@ def test_create_user_with_duplicate_emails(test_app):
         ]
     )
 
-    result = test_app.post("/users", content=dumps(payload))
+    result = test_app.post(BASE_ENDPOINT, content=dumps(payload))
 
     assert result.status_code == status.HTTP_400_BAD_REQUEST
 
     # ensure uniqueness across two different requests
     result = test_app.post(
-        "/users",
+        BASE_ENDPOINT,
         content=dumps(
             _build_create_users_payload(
                 [("Arnold S", "arnold@terminator.com", "client")]
@@ -159,7 +161,7 @@ def test_create_user_with_duplicate_emails(test_app):
     assert result.status_code == status.HTTP_201_CREATED
 
     result = test_app.post(
-        "/users",
+        BASE_ENDPOINT,
         content=dumps(
             _build_create_users_payload(
                 [
@@ -176,7 +178,7 @@ def test_create_user_with_duplicate_emails(test_app):
 def test_update_user(test_app):
     # add one user
     response = test_app.post(
-        "/users",
+        BASE_ENDPOINT,
         content=dumps(
             _build_create_users_payload(
                 [
@@ -194,7 +196,7 @@ def test_update_user(test_app):
 
     # modify user
     response = test_app.put(
-        f"/users/{user_id}",
+        f"{BASE_ENDPOINT}/{user_id}",
         content=dumps(
             _build_create_users_payload(
                 [
@@ -207,13 +209,13 @@ def test_update_user(test_app):
     assert response.status_code == status.HTTP_200_OK
 
     # get the user
-    response = test_app.get(f"/users/{user_id}")
+    response = test_app.get(f"{BASE_ENDPOINT}/{user_id}")
     modified_user = loads(response.content)
     assert modified_user.get("email", "") == "test_new@foo.com"
 
     # even a PUT request should ensure email uniqueness
     response = test_app.post(
-        "/users",
+        BASE_ENDPOINT,
         content=dumps(
             _build_create_users_payload(
                 [
@@ -230,7 +232,7 @@ def test_update_user(test_app):
         raise AssertionError("New user created with None id")
 
     response = test_app.put(
-        f"/users/{user_id}",
+        f"{BASE_ENDPOINT}/{user_id}",
         content=dumps(
             _build_create_users_payload(
                 [

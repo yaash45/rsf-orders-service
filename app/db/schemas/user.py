@@ -8,6 +8,7 @@ class User(Base):
 
     id = Column(UUID, primary_key=True)
     created = Column(DateTime, nullable=False)
+    modified = Column(DateTime, nullable=False)
     name = Column(String, nullable=False)  # TODO: consider capping length
     email = Column(String, unique=True, nullable=False)
     kind = Column(String(10), nullable=False)
