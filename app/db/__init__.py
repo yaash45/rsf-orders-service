@@ -44,6 +44,12 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def get_db():
+    """
+    Yields a database session.
+
+    The session is automatically rolled back if an exception occurs,
+    and automatically closed when the context manager exits.
+    """
     db = SessionLocal()
     try:
         yield db

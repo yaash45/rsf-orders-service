@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.api.v0 import product, user
+from app.api.v0 import user
 from app.core.config import Environments, config
 from app.core.logging import getLogger
 from app.db import Base, engine
@@ -27,5 +27,4 @@ app = FastAPI(
     redoc_url=None if config.ENVIRONMENT == Environments.PROD else "/redoc",
 )
 
-app.include_router(product.router, prefix="/product", tags=["product"])
 app.include_router(user.router, tags=["users"])
