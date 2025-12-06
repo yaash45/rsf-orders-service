@@ -11,7 +11,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.db.schemas.user import User as UserModel
+from app.db.schemas.user import UserDb
 from app.models.user import UserCreate, UserPublic, UserUpdate
 
 logger = getLogger(__name__)
@@ -43,9 +43,7 @@ def get_user_by_id(id: UUID, db: Session = Depends(get_db)) -> UserPublic:
         HttpException with a 404 status if the user cannot be found
     """
 
-    db_user = db.execute(
-        select(UserModel).where(UserModel.id == id)
-    ).scalar_one_or_none()
+    db_user = db.execute(select(UserDb).where(UserDb.id == id)).scalar_one_or_none()
 
     if db_user is None:
         raise HTTPException(
@@ -65,7 +63,7 @@ def get_all_users(db: Session = Depends(get_db)) -> list[UserPublic]:
         list[User]: A list of all users.
     """
     users = []
-    result = db.query(UserModel).all()
+    result = db.query(UserDb).all()
     users = [UserPublic.model_validate(r, from_attributes=True) for r in result]
 
     return users
@@ -104,10 +102,10 @@ def create_users(
 
     users_to_create = [UserPublic(**uc.model_dump()) for uc in payload]
 
-    db_users: list[UserModel] = []
+    db_users: list[UserDb] = []
 
     for user in users_to_create:
-        db_user = UserModel(**user.model_dump())
+        db_user = UserDb(**user.model_dump())
         db_users.append(db_user)
 
     try:
@@ -163,7 +161,7 @@ def update_user(
     user = None
     updated_user = None
 
-    user = db.execute(select(UserModel).where(UserModel.id == id)).scalar_one_or_none()
+    user = db.execute(select(UserDb).where(UserDb.id == id)).scalar_one_or_none()
 
     if user is None:
         raise HTTPException(
@@ -178,7 +176,7 @@ def update_user(
     updated_user = UserPublic(**kwargs)
 
     try:
-        db.execute(update(UserModel).where(UserModel.id == id).values(kwargs))
+        db.execute(update(UserDb).where(UserDb.id == id).values(kwargs))
         db.commit()
     except IntegrityError:
         db.rollback()
@@ -193,14 +191,14 @@ def update_user(
 @router.delete("/users/{id}", response_model=UserPublic, status_code=status.HTTP_200_OK)
 def delete_user(id: UUID, db: Session = Depends(get_db)) -> Response | UserPublic:
     result = db.execute(
-        delete(UserModel)
-        .where(UserModel.id == id)
+        delete(UserDb)
+        .where(UserDb.id == id)
         .returning(
-            UserModel.id,
-            UserModel.name,
-            UserModel.email,
-            UserModel.kind,
-            UserModel.created,
+            UserDb.id,
+            UserDb.name,
+            UserDb.email,
+            UserDb.kind,
+            UserDb.created,
         )
     ).fetchall()
 

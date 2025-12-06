@@ -14,3 +14,6 @@ wheels/
 
 # db files
 *.db
+
+# bruno files
+bruno-config/*

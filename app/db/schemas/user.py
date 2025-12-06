@@ -3,7 +3,7 @@ from sqlalchemy import UUID, Column, DateTime, String
 from app.db import Base
 
 
-class User(Base):
+class UserDb(Base):
     __tablename__ = "User"
 
     id = Column(UUID, primary_key=True)
