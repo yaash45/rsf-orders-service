@@ -1,22 +1,31 @@
-from datetime import datetime, timezone
 from logging import getLogger
+from typing import Iterator
 from uuid import UUID
 
 from fastapi import Depends, status
 from fastapi.exceptions import HTTPException
 from fastapi.responses import Response
 from fastapi.routing import APIRouter
-from sqlalchemy import delete, select, update
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.db.schemas.user import UserDb
+from app.exceptions import ConflictError, EntityNotFoundError
 from app.models.user import UserCreate, UserPublic, UserUpdate
+from app.services.user import UserService
 
 logger = getLogger(__name__)
 
 router = APIRouter(prefix="/v0")
+
+
+def get_user_service(db: Session = Depends(get_db)) -> Iterator[UserService]:
+    """
+    Returns a UserService instance using the provided database session.
+
+    The UserService instance is used to encapsulate database operations
+    related to users.
+    """
+    yield UserService(db=db)
 
 
 @router.get(
@@ -29,7 +38,10 @@ router = APIRouter(prefix="/v0")
     response_model=UserPublic,
     status_code=200,
 )
-def get_user_by_id(id: UUID, db: Session = Depends(get_db)) -> UserPublic:
+def get_user(
+    id: UUID,
+    service: UserService = Depends(get_user_service),
+) -> UserPublic:
     """
     Returns a single User queried by id
 
@@ -43,30 +55,26 @@ def get_user_by_id(id: UUID, db: Session = Depends(get_db)) -> UserPublic:
         HttpException with a 404 status if the user cannot be found
     """
 
-    db_user = db.execute(select(UserDb).where(UserDb.id == id)).scalar_one_or_none()
-
-    if db_user is None:
+    try:
+        return service.get_user_by_id(id=id)
+    except EntityNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with id = {id} not found.",
+            detail=str(e),
         )
-
-    return UserPublic.model_validate(db_user, from_attributes=True)
 
 
 @router.get("/users", response_model=list[UserPublic])
-def get_all_users(db: Session = Depends(get_db)) -> list[UserPublic]:
+def get_all_users(
+    service: UserService = Depends(get_user_service),
+) -> list[UserPublic]:
     """
     Return a list of all users.
 
     Returns:
         list[User]: A list of all users.
     """
-    users = []
-    result = db.query(UserDb).all()
-    users = [UserPublic.model_validate(r, from_attributes=True) for r in result]
-
-    return users
+    return service.get_all_users()
 
 
 @router.post(
@@ -83,7 +91,8 @@ def get_all_users(db: Session = Depends(get_db)) -> list[UserPublic]:
     status_code=status.HTTP_201_CREATED,
 )
 def create_users(
-    payload: list[UserCreate], db: Session = Depends(get_db)
+    payload: list[UserCreate],
+    service: UserService = Depends(get_user_service),
 ) -> Response | list[UserPublic]:
     """
     Create a list of users from a list of UserCreate objects.
@@ -97,52 +106,27 @@ def create_users(
     Raises:
         HTTPException: If a user with the same email already exists.
     """
-    if not payload:
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-    users_to_create = [UserPublic(**uc.model_dump()) for uc in payload]
-
-    db_users: list[UserDb] = []
-
-    for user in users_to_create:
-        db_user = UserDb(**user.model_dump())
-        db_users.append(db_user)
 
     try:
-        db.add_all(db_users)
-        db.commit()
-    except IntegrityError:
-        db.rollback()
+        new_users: list[UserPublic] = service.create_users(payload)
 
-        logger.warning(
-            "Bulk user addition failed due to violation of unique email address constraint."
+        if not new_users:
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+        return new_users
+
+    except ConflictError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
         )
-        logger.info("Attempting to add each user one-by-one.")
-
-        errors = []
-
-        for u in db_users:
-            try:
-                db.add(u)
-                db.commit()
-            except IntegrityError as e:
-                db.rollback()
-                logger.error(f"err = {e}")
-                errors.append(u.email)
-
-        if errors:
-            msg = f"Users with emails [{', '.join(errors)}] already exist in system"
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=msg,
-            )
-
-    return users_to_create
 
 
 @router.put("/users/{id}", response_model=UserPublic)
 def update_user(
-    id: UUID, request: UserUpdate, db: Session = Depends(get_db)
+    id: UUID,
+    request: UserUpdate,
+    service: UserService = Depends(get_user_service),
 ) -> UserPublic | None:
     """
     Update an existing user.
@@ -158,63 +142,40 @@ def update_user(
         HTTPException: If the user with the given ID is not found.
     """
 
-    user = None
-    updated_user = None
+    try:
+        return service.update_user(id=id, request=request)
 
-    user = db.execute(select(UserDb).where(UserDb.id == id)).scalar_one_or_none()
-
-    if user is None:
+    except EntityNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with '{id}' not found",
+            detail=str(e),
         )
-
-    kwargs = request.model_dump(exclude_none=True)
-    kwargs["id"] = user.id
-    kwargs["created"] = user.created
-    kwargs["modified"] = datetime.now(tz=timezone.utc)
-    updated_user = UserPublic(**kwargs)
-
-    try:
-        db.execute(update(UserDb).where(UserDb.id == id).values(kwargs))
-        db.commit()
-    except IntegrityError:
-        db.rollback()
+    except ConflictError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"User with email '{request.email}' already exists in the system",
+            detail=str(e),
         )
-
-    return updated_user
 
 
 @router.delete("/users/{id}", response_model=UserPublic, status_code=status.HTTP_200_OK)
-def delete_user(id: UUID, db: Session = Depends(get_db)) -> Response | UserPublic:
-    result = db.execute(
-        delete(UserDb)
-        .where(UserDb.id == id)
-        .returning(
-            UserDb.id,
-            UserDb.name,
-            UserDb.email,
-            UserDb.kind,
-            UserDb.created,
-        )
-    ).fetchall()
+def delete_user(
+    id: UUID,
+    service: UserService = Depends(get_user_service),
+) -> Response | UserPublic:
+    """
+    Deletes an existing user.
 
-    if not result:
-        msg = f"No-op. User with id '{id}' does not exist"
-        logger.info(msg)
-        return Response(status_code=status.HTTP_200_OK, content=msg)
+    Args:
+        id (UUID): The ID of the user to delete.
 
-    db.commit()
+    Returns:
+        UserPublic: The deleted user.
 
-    deleted_user = result[0]
-
-    return UserPublic(
-        id=deleted_user.id,
-        name=deleted_user.name,
-        email=deleted_user.email,
-        kind=deleted_user.kind,
-        created=deleted_user.created,
-    )
+    Side-effect:
+        The user is removed from the database. If the user
+        doesn't exist, this is a no-op, ensuring idempotency.
+    """
+    try:
+        return service.delete_user(id=id)
+    except EntityNotFoundError as e:
+        return Response(status_code=status.HTTP_200_OK, content=str(e))
