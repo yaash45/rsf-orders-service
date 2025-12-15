@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models.bill import (
-    BillCreate,
+    BillIssueRequest,
     BillPublic,
     BillUpdateAmount,
     BillUpdateImage,
@@ -69,26 +69,39 @@ def get_bill(
 
 @router.post(
     "/bills",
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "description": "User not found",
+        },
+    },
     status_code=status.HTTP_201_CREATED,
     response_model=BillPublic,
 )
-def create_bill(
-    bill: BillCreate,
+def issue_bill(
+    request: BillIssueRequest,
     service: BillService = Depends(get_bill_service),
 ) -> BillPublic:
     """
     Creates a new bill.
 
     Args:
-        bill (BillCreate): The bill to create.
+        bill (BillIssueRequest): The bill to create for a user
 
     Returns:
         BillPublic: The created bill.
 
     Raises:
-        ConflictError: If a bill with the same id already exists.
+        HTTPException: when a user with provided id is not found
     """
-    return service.create_bill(bill=bill)
+    bill = service.issue_bill(request=request)
+
+    if not bill:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with id = '{request.user_id}' not found",
+        )
+
+    return bill
 
 
 @router.patch(

@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 from . import Identifiable, TimeStamped
@@ -7,9 +9,10 @@ class BillBase(BaseModel):
     amount: float = Field(ge=0.0)
     image_url: HttpUrl | None = None
     paid: bool | None = Field(default=False)
+    user_id: UUID
 
 
-class BillCreate(BillBase, TimeStamped): ...
+class BillIssueRequest(BillBase, TimeStamped): ...
 
 
 class BillUpdatePaid(BaseModel):

@@ -1,14 +1,14 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
-from pydantic import HttpUrl
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, select
 
 from app.core.logging import getLogger
 from app.db.schemas.bill import BillDb
+from app.db.schemas.user import UserDb
 from app.exceptions import EntityNotFoundError
 from app.models.bill import (
-    BillCreate,
+    BillIssueRequest,
     BillPublic,
     BillUpdateAmount,
     BillUpdateImage,
@@ -21,12 +21,12 @@ logger = getLogger(__name__)
 
 
 class BillService(BaseService):
-    def create_bill(self, bill: BillCreate) -> BillPublic:
+    def issue_bill(self, request: BillIssueRequest) -> BillPublic | None:
         """
         Create a new bill.
 
         Args:
-            bill (BillCreate): The bill to create.
+            bill (BillIssueRequest): The bill to create for a user.
 
         Returns:
             BillPublic: The created bill.
@@ -35,13 +35,28 @@ class BillService(BaseService):
             ConflictError: If a bill with the same id already exists.
         """
 
-        new_bill = BillPublic(**bill.model_dump())
-        db_bill = BillDb(**new_bill.model_dump())
+        user = self.db.get(UserDb, request.user_id)
+
+        if not user:
+            return None
+
+        new_bill = BillPublic(**request.model_dump())
+        db_bill = BillDb(
+            id=new_bill.id,
+            amount=new_bill.amount,
+            image_url=str(new_bill.image_url) if new_bill.image_url else None,
+            paid=new_bill.paid,
+            created=new_bill.created,
+            modified=new_bill.modified,
+            user_id=new_bill.user_id,
+        )
 
         self.db.add(db_bill)
         self.db.commit()
 
-        return db_bill
+        user.bills.append(db_bill)
+
+        return new_bill
 
     def _find_existing_bill(self, id: UUID) -> BillDb | None:
         """
@@ -76,19 +91,12 @@ class BillService(BaseService):
         if bill is None:
             raise EntityNotFoundError.from_id(entity="Bill", id=id)
 
-        updated_bill = BillPublic(
-            id=id,
-            amount=bill.amount,
-            image_url=request.image_url,
-            created=bill.created,
-            modified=datetime.now(tz=timezone.utc),
-        )
+        bill.image_url = str(request.image_url)
+        bill.modified = datetime.now(tz=timezone.utc)
 
-        self.db.execute(
-            update(BillDb).where(BillDb.id == id).values(updated_bill.model_dump()),
-        )
+        self.db.commit()
 
-        return updated_bill
+        return bill
 
     def update_amount(self, id: UUID, request: BillUpdateAmount) -> BillPublic:
         """
@@ -111,19 +119,12 @@ class BillService(BaseService):
         if bill is None:
             raise EntityNotFoundError.from_id(entity="Bill", id=id)
 
-        updated_bill = BillPublic(
-            id=id,
-            amount=request.amount,
-            image_url=HttpUrl(bill.image_url) if bill.image_url else None,
-            created=bill.created,
-            modified=datetime.now(tz=timezone.utc),
-        )
+        bill.amount = request.amount
+        bill.modified = datetime.now(tz=timezone.utc)
 
-        self.db.execute(
-            update(BillDb).where(BillDb.id == id).values(updated_bill.model_dump()),
-        )
+        self.db.commit()
 
-        return updated_bill
+        return bill
 
     def mark_paid(self, id: UUID, request: BillUpdatePaid) -> BillPublic | None:
         bill = self._find_existing_bill(id)
@@ -131,20 +132,12 @@ class BillService(BaseService):
         if not bill:
             return None
 
-        updated_bill = BillPublic(
-            id=id,
-            amount=bill.amount,
-            image_url=HttpUrl(bill.image_url) if bill.image_url else None,
-            paid=request.paid,
-            created=bill.created,
-            modified=datetime.now(tz=timezone.utc),
-        )
+        bill.paid = request.paid
+        bill.modified = datetime.now(tz=timezone.utc)
 
-        self.db.execute(
-            update(BillDb).where(BillDb.id == id).values(updated_bill.model_dump()),
-        )
+        self.db.commit()
 
-        return updated_bill
+        return bill
 
     def delete_bill(self, id: UUID) -> BillPublic | None:
         """
@@ -167,6 +160,7 @@ class BillService(BaseService):
                 BillDb.paid,
                 BillDb.created,
                 BillDb.modified,
+                BillDb.user_id,
             )
         ).fetchall()
 
@@ -184,4 +178,5 @@ class BillService(BaseService):
             paid=deleted_bill.paid,
             created=deleted_bill.created,
             modified=deleted_bill.modified,
+            user_id=deleted_bill.user_id,
         )

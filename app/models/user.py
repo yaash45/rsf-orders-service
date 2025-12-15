@@ -5,12 +5,14 @@ from enum import Enum
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 from . import Identifiable, TimeStamped
+from .bill import BillPublic
 
 
 class UserBase(BaseModel):
     name: str
     email: EmailStr
     kind: UserKind
+    bills: list[BillPublic] = []
 
 
 class UserCreate(UserBase, TimeStamped): ...

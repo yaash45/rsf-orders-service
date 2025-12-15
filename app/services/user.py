@@ -168,6 +168,8 @@ class UserService(BaseService):
                 UserDb.email,
                 UserDb.kind,
                 UserDb.created,
+                UserDb.modified,
+                UserDb.bills,
             )
         ).fetchall()
 
@@ -186,4 +188,6 @@ class UserService(BaseService):
             email=deleted_user.email,
             kind=deleted_user.kind,
             created=deleted_user.created,
+            modified=deleted_user.modified,
+            bills=deleted_user.bills,
         )
