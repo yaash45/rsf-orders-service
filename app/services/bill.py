@@ -4,8 +4,7 @@ from uuid import UUID
 from sqlalchemy import delete, select
 
 from app.core.logging import getLogger
-from app.db.schemas.bill import BillDb
-from app.db.schemas.user import UserDb
+from app.db.schemas import BillDb, UserDb
 from app.exceptions import EntityNotFoundError
 from app.models.bill import (
     BillIssueRequest,

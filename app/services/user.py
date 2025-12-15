@@ -5,7 +5,7 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.exc import IntegrityError
 
 from app.core.logging import getLogger
-from app.db.schemas.user import UserDb
+from app.db.schemas import UserDb
 from app.exceptions import ConflictError, EntityNotFoundError
 from app.models.user import UserCreate, UserPublic, UserUpdate
 
