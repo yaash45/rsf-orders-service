@@ -19,8 +19,17 @@ class BaseSchemaDb(Base):
     __abstract__ = True
 
     # make the primary key a UUID
-    id: Mapped[py_UUID] = mapped_column(UUID, primary_key=True)
+    id: Mapped[py_UUID] = mapped_column(
+        UUID,
+        primary_key=True,
+    )
 
     # track timestamps of creation and modification
-    created: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    modified: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    created: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    modified: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )

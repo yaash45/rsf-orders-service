@@ -45,7 +45,10 @@ class OrderDb(BaseSchemaDb):
 
     # order status related fields
     status: Mapped[str] = mapped_column(String(9), nullable=False)
-    status_timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    status_timestamp: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
 
     # refer to the user that placed the order
     user_id: Mapped[py_UUID] = mapped_column(ForeignKey("users.id"))
