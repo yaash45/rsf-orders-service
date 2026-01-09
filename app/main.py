@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.api.v0 import bill, user
+from app.api.v0 import bill, product, user
 from app.core.config import Environments, config
 from app.core.logging import get_logger
 from app.db import Base, engine
@@ -29,3 +29,4 @@ app = FastAPI(
 
 app.include_router(user.router, tags=["users"])
 app.include_router(bill.router, tags=["bills"])
+app.include_router(product.router, tags=["products"])

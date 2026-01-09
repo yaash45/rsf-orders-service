@@ -1,40 +1,56 @@
 from __future__ import annotations
 
-from datetime import datetime
-from enum import Enum
-from uuid import UUID, uuid4
+from uuid import UUID
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field
+
+from . import Identifiable, TimeStamped
 
 
-class ProductCreate(BaseModel):
+class ProductVariantBase(BaseModel):
+    """
+    Base model describing a specific product variant's properties
+    """
+
+    size: str
+    kind: str
+
+
+class ProductVariantCreate(ProductVariantBase):
+    """
+    Creation request model for a product variant
+    """
+
+
+class ProductVariantPublic(ProductVariantBase, Identifiable):
+    """
+    Public-facing specific product variant model
+    """
+
+    product_id: UUID
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProductBase(BaseModel):
+    """
+    Base representation of a general product
+    """
+
     name: str
-    available_sizes: list[ProductSize]
     description: str | None = None
-    image: HttpUrl | None = None
+    available_variants: list[ProductVariantBase] = Field(default_factory=list)
 
 
-class Product(ProductCreate):
-    id: UUID = Field(default_factory=uuid4)
-    created: datetime = Field(default_factory=datetime.now)
+class ProductCreate(ProductBase, TimeStamped):
+    """
+    Creation request model for a product
+    """
 
 
-class ProductSummary(BaseModel):
-    id: UUID
-    name: str
+class ProductPublic(ProductBase, Identifiable, TimeStamped):
+    """
+    Public-facing general product model
+    """
 
-
-class ProductSize(str, Enum):
-    TEN_ML = "10 mL"
-    THIRTY_ML = "30 mL"
-    SIXTY_ML = "60 mL"
-    HUNDRED_ML = "100 mL"
-    TWO_HUNDRED_ML = "200 mL"
-    FIVE_HUNDRED_ML = "500 mL"
-    ONE_L = "1 L"
-    TWO_L = "2 L"
-    FIVE_L = "5 L"
-    TEN_L = "10 L"
-
-
-class Catalog(dict[UUID, Product]): ...
+    model_config = ConfigDict(from_attributes=True)
