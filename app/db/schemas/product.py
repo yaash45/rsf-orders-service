@@ -26,6 +26,9 @@ class ProductVariantDb(Base):
     # the product specified by this variant
     product_id: Mapped[py_UUID] = mapped_column(ForeignKey("products.id"))
 
+    def __repr__(self):
+        return f"ProductVariantDb(size={self.size}, kind={self.kind}, product_id={self.product_id}) at {id(self)}"
+
 
 class ProductDb(BaseSchemaDb):
     """
@@ -35,8 +38,11 @@ class ProductDb(BaseSchemaDb):
     __tablename__ = "products"
 
     # basic information
-    name: Mapped[str] = mapped_column(String, nullable=False)
+    name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=True)
 
     # available variants
     available_variants: Mapped[list["ProductVariantDb"]] = relationship()
+
+    def __repr__(self):
+        return f"ProductDb(name={self.name}, description={self.description}, available_variants={self.available_variants}) at {id(self)}"

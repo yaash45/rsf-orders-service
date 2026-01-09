@@ -1,9 +1,29 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.schemas import BaseSchemaDb
+
+
+class UserDb(BaseSchemaDb):
+    """
+    Represents a user in the rsf-orders system
+    """
+
+    __tablename__ = "users"
+
+    # basic information
+    name: Mapped[str] = mapped_column(
+        String, nullable=False
+    )  # TODO: consider capping length
+    email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+
+    # a label used to specify the type of user (e.g. admin, test, client, etc.)
+    kind: Mapped[str] = mapped_column(String(10), nullable=False)
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} name={self.name}, email={self.email}, created={self.created}, kind={self.kind}, id={self.id}>"
 
 
 class UserCredentialsDb(BaseSchemaDb):
@@ -32,28 +52,7 @@ class UserCredentialsDb(BaseSchemaDb):
     auth_valid_after: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default_factory=lambda: datetime.now(timezone.utc),
     )
 
     # if this is set to false, a user is not allowed to authenticate
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-
-
-class UserDb(BaseSchemaDb):
-    """
-    Represents a user in the rsf-orders system
-    """
-
-    __tablename__ = "users"
-
-    # basic information
-    name: Mapped[str] = mapped_column(
-        String, nullable=False
-    )  # TODO: consider capping length
-    email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-
-    # a label used to specify the type of user (e.g. admin, test, client, etc.)
-    kind: Mapped[str] = mapped_column(String(10), nullable=False)
-
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} name={self.name}, email={self.email}, created={self.created}, kind={self.kind}, id={self.id}>"

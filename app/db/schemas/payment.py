@@ -19,4 +19,4 @@ class PaymentDb(BaseSchemaDb):
     amount: Mapped[float] = mapped_column(Float, nullable=False)
 
     # the bill that this payment was made towards
-    bill_id: Mapped[py_UUID] = mapped_column(ForeignKey("bill.id"))
+    bill_id: Mapped[py_UUID] = mapped_column(ForeignKey("bills.id"))
