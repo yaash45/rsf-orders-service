@@ -4,10 +4,10 @@ from fastapi import FastAPI
 
 from app.api.v0 import bill, user
 from app.core.config import Environments, config
-from app.core.logging import getLogger
+from app.core.logging import get_logger
 from app.db import Base, engine
 
-logger = getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @asynccontextmanager
