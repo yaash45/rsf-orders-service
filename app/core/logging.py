@@ -13,5 +13,5 @@ logging.basicConfig(
 )
 
 
-def getLogger(name: str) -> logging.Logger:
+def get_logger(name: str) -> logging.Logger:
     return logging.getLogger(name)

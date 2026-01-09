@@ -3,7 +3,7 @@ from uuid import UUID
 
 from sqlalchemy import delete, select
 
-from app.core.logging import getLogger
+from app.core.logging import get_logger
 from app.db.schemas import BillDb, UserDb
 from app.exceptions import EntityNotFoundError
 from app.models.bill import (
@@ -16,7 +16,7 @@ from app.models.bill import (
 
 from . import BaseService
 
-logger = getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class BillService(BaseService):

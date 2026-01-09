@@ -1,9 +1,9 @@
 import uvicorn
 
 from app.core.config import Environments, config
-from app.core.logging import getLogger
+from app.core.logging import get_logger
 
-logger = getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def main():

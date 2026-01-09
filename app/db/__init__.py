@@ -12,7 +12,13 @@ from sqlalchemy.orm import sessionmaker
 
 from app.core.config import config
 from app.db.schemas import (
+    BaseSchemaDb,  # noqa: F401
     BillDb,  # noqa: F401
+    OrderDb,  # noqa: F401
+    OrderItemDb,  # noqa: F401
+    PaymentDb,  # noqa: F401
+    ProductDb,  # noqa: F401
+    ProductVariantDb,  # noqa: F401
     UserDb,  # noqa: F401
 )
 
