@@ -143,7 +143,7 @@ class ProductService(BaseService):
             raise ValueError(f"Product with ID {product_id} not found")
 
         # update the product modified timestamp since we updated it's available variants
-        product.modified: datetime = datetime.now(timezone.utc)
+        product.modified = datetime.now(timezone.utc)
 
         self.db.commit()
 
