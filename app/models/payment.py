@@ -1,23 +1,46 @@
-from datetime import datetime
 from enum import Enum
-from uuid import UUID, uuid4
+from uuid import UUID
 
-from pydantic import BaseModel, Field, PositiveFloat
+from pydantic import BaseModel, ConfigDict
+
+from . import Identifiable, TimeStamped
 
 
 class PaymentMethod(str, Enum):
-    CASH = "Cash"
-    UPI = "UPI"
-    BANK = "Bank"
+    """
+    Form of payment represented as an enum
+    """
+
+    CASH = "cash"
+    UPI = "upi"
+    BANK = "bank"
+    DEBIT_CARD = "debit_card"
+    CREDIT_CARD = "credit_card"
+    CHEQUE = "cheque"
+    OTHER = "other"
 
 
-class PaymentCreate(BaseModel):
-    amount: PositiveFloat
-    client_id: UUID
-    order_id: UUID
+class PaymentBase(BaseModel):
+    """
+    Base model containing attributes for a payment
+
+    If a negative amount is provided, it signifies a refund
+    """
+
+    amount: float
+    bill_id: UUID
     method: PaymentMethod
 
 
-class Payment(PaymentCreate):
-    id: UUID = Field(default_factory=uuid4)
-    created: datetime = Field(default_factory=datetime.now)
+class PaymentCreate(PaymentBase):
+    """
+    Creation request model for a payment
+    """
+
+
+class PaymentPublic(PaymentCreate, Identifiable, TimeStamped):
+    """
+    Public-facing payment model
+    """
+
+    model_config = ConfigDict(from_attributes=True)
