@@ -2,11 +2,12 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID as py_UUID
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String
+from sqlalchemy import DateTime, Enum, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
 from app.db.schemas import BaseSchemaDb
+from app.models.order import OrderStatus
 
 if TYPE_CHECKING:
     from .bill import BillDb
@@ -27,7 +28,7 @@ class OrderItemDb(Base):
     )
 
     # the product and its variant that is being ordered
-    product_variant: Mapped[py_UUID] = mapped_column(
+    product_variant_id: Mapped[py_UUID] = mapped_column(
         ForeignKey("product_variants.id"),
         primary_key=True,
     )
@@ -44,7 +45,7 @@ class OrderDb(BaseSchemaDb):
     __tablename__ = "orders"
 
     # order status related fields
-    status: Mapped[str] = mapped_column(String(9), nullable=False)
+    status: Mapped[Enum[OrderStatus]] = mapped_column(Enum(OrderStatus), nullable=False)
     status_timestamp: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
