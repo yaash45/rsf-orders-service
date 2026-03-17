@@ -6,15 +6,14 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.models.bill import BillPublic
-
-from . import Identifiable, TimeStamped
+from app.bill.models import BillPublic
+from app.core.models import Identifiable, TimeStamped
 
 
 class OrderStatus(str, Enum):
-    PENDING = "Pending"
-    FULFILLED = "Fulfilled"
-    CANCELLED = "Cancelled"
+    PENDING = "pending"
+    FULFILLED = "fulfilled"
+    CANCELLED = "cancelled"
 
 
 class OrderBase(BaseModel):

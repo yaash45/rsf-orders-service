@@ -4,8 +4,8 @@ from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, EmailStr
 
-from . import Identifiable, TimeStamped
-from .bill import BillPublic
+from app.bill.models import BillPublic
+from app.core.models import Identifiable, TimeStamped
 
 
 class UserBase(BaseModel):

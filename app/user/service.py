@@ -1,6 +1,5 @@
 from app.core.logging import get_logger
-
-from . import BaseService
+from app.core.service import BaseService
 
 logger = get_logger(__name__)
 

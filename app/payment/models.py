@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
-from . import Identifiable, TimeStamped
+from app.core.models import Identifiable, TimeStamped
 
 
 class PaymentMethod(str, Enum):

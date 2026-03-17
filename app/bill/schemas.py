@@ -7,8 +7,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.schemas import BaseSchemaDb
 
 if TYPE_CHECKING:
-    from .order import OrderDb
-    from .payment import PaymentDb
+    from app.order.schemas import OrderDb
+    from app.payment.schemas import PaymentDb
 
 
 class BillDb(BaseSchemaDb):

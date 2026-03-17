@@ -6,10 +6,10 @@ from fastapi.routing import APIRouter
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.models.order import OrderCreate, OrderPublic, OrderUpdateItems
-from app.services.order import OrderService
+from app.order.models import OrderCreate, OrderPublic, OrderUpdateItems
+from app.order.service import OrderService
 
-router = APIRouter(prefix="/v0")
+router_v0 = APIRouter(prefix="/v0")
 
 
 def get_order_service(db: Session = Depends(get_db)) -> Iterator:
@@ -22,7 +22,7 @@ def get_order_service(db: Session = Depends(get_db)) -> Iterator:
     yield OrderService(db=db)
 
 
-@router.get(
+@router_v0.get(
     "/orders/{order_id}",
     responses={
         status.HTTP_404_NOT_FOUND: {
@@ -56,7 +56,7 @@ def get_order_by_id(
     return order
 
 
-@router.get(
+@router_v0.get(
     "/orders/user/{user_id}",
     response_model=list[OrderPublic],
     status_code=status.HTTP_200_OK,
@@ -68,7 +68,7 @@ def get_order_for_user(
     return list(service.get_orders_by_user_id(user_id=user_id))
 
 
-@router.post(
+@router_v0.post(
     "/orders",
     response_model=OrderPublic,
     status_code=status.HTTP_201_CREATED,
@@ -80,7 +80,7 @@ def create_order(
     return service.create_order(request=request)
 
 
-@router.put(
+@router_v0.put(
     "/orders/{id}/items",
     response_model=OrderPublic,
     status_code=status.HTTP_200_OK,
