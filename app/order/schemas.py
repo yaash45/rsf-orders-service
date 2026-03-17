@@ -7,10 +7,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
 from app.db.schemas import BaseSchemaDb
-from app.models.order import OrderStatus
+from app.order.models import OrderStatus
 
 if TYPE_CHECKING:
-    from .bill import BillDb
+    from app.db.schemas.bill import BillDb
 
 
 class OrderItemDb(Base):
@@ -45,7 +45,10 @@ class OrderDb(BaseSchemaDb):
     __tablename__ = "orders"
 
     # order status related fields
-    status: Mapped[Enum[OrderStatus]] = mapped_column(Enum(OrderStatus), nullable=False)
+    status: Mapped[OrderStatus] = mapped_column(
+        Enum(OrderStatus, values_callable=lambda enum: [e.value for e in enum]),
+        nullable=False,
+    )
     status_timestamp: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

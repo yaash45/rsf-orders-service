@@ -2,10 +2,11 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.api.v0 import bill, order, user
+from app.api.v0 import bill, user
 from app.core.config import Environments, config
 from app.core.logging import get_logger
 from app.db import Base, engine
+from app.order import router as order_v0
 from app.product import router as product_v0
 
 logger = get_logger(__name__)
@@ -28,7 +29,7 @@ app = FastAPI(
     redoc_url=None if config.ENVIRONMENT == Environments.PROD else "/redoc",
 )
 
-app.include_router(order.router, tags=["orders"])
+app.include_router(order_v0, tags=["orders"])
 app.include_router(user.router, tags=["users"])
 app.include_router(bill.router, tags=["bills"])
 app.include_router(product_v0, tags=["products"])

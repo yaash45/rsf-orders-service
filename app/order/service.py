@@ -4,12 +4,11 @@ from uuid import UUID
 
 from pydantic import ValidationError
 
-from app.db.schemas import OrderDb, OrderItemDb
+from app.core.service import BaseService
 from app.exceptions import EntityNotFoundError
-from app.models.order import OrderCreate, OrderPublic, OrderStatus, OrderUpdateItems
+from app.order.models import OrderCreate, OrderPublic, OrderStatus, OrderUpdateItems
+from app.order.schemas import OrderDb, OrderItemDb
 from app.product.schemas import ProductVariantDb
-
-from . import BaseService
 
 
 class OrderService(BaseService):

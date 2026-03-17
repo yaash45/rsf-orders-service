@@ -6,8 +6,8 @@ from fastapi.routing import APIRouter
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.models.order import OrderCreate, OrderPublic, OrderUpdateItems
-from app.services.order import OrderService
+from app.order.models import OrderCreate, OrderPublic, OrderUpdateItems
+from app.order.service import OrderService
 
 router = APIRouter(prefix="/v0")
 

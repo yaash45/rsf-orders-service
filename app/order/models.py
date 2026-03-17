@@ -11,9 +11,9 @@ from app.models.bill import BillPublic
 
 
 class OrderStatus(str, Enum):
-    PENDING = "Pending"
-    FULFILLED = "Fulfilled"
-    CANCELLED = "Cancelled"
+    PENDING = "pending"
+    FULFILLED = "fulfilled"
+    CANCELLED = "cancelled"
 
 
 class OrderBase(BaseModel):
