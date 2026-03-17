@@ -6,18 +6,18 @@ from fastapi.routing import APIRouter
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.services.user import UserService
+from app.payment.service import PaymentService
 
 logger = getLogger(__name__)
 
-router = APIRouter(prefix="/v0")
+router_v0 = APIRouter(prefix="/v0")
 
 
-def get_user_service(db: Session = Depends(get_db)) -> Iterator[UserService]:
+def get_payment_service(db: Session = Depends(get_db)) -> Iterator[PaymentService]:
     """
     Returns a UserService instance using the provided database session.
 
     The UserService instance is used to encapsulate database operations
     related to users.
     """
-    yield UserService(db=db)
+    yield PaymentService(db=db)

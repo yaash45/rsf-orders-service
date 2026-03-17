@@ -14,7 +14,7 @@ from app.product.models import (
 )
 from app.product.service import ProductService
 
-router = APIRouter(prefix="/v0")
+router_v0 = APIRouter(prefix="/v0")
 
 
 def get_product_service(db: Session = Depends(get_db)) -> Iterator[ProductService]:
@@ -26,7 +26,7 @@ def get_product_service(db: Session = Depends(get_db)) -> Iterator[ProductServic
     yield ProductService(db=db)
 
 
-@router.get(
+@router_v0.get(
     "/products/{product_id}",
     responses={
         status.HTTP_404_NOT_FOUND: {
@@ -63,7 +63,7 @@ def get_product(
     return product
 
 
-@router.post(
+@router_v0.post(
     "/products",
     response_model=list[ProductPublic],
     status_code=status.HTTP_201_CREATED,
@@ -84,7 +84,7 @@ def register_products(
     return service.register_products(request=request)
 
 
-@router.get(
+@router_v0.get(
     "/productIdMap",
     response_model=dict[UUID, str],
     status_code=status.HTTP_200_OK,
@@ -101,7 +101,7 @@ def get_product_id_map(
     return service.get_product_id_map()
 
 
-@router.get(
+@router_v0.get(
     "/products/{product_id}/variants",
     response_model=list[ProductVariantPublic],
     status_code=status.HTTP_200_OK,
@@ -122,7 +122,7 @@ def get_variants_for_product(
     return service.get_variants_for_product(product_id=product_id)
 
 
-@router.post(
+@router_v0.post(
     "/products/{product_id}/variants",
     response_model=list[ProductVariantPublic],
     status_code=status.HTTP_201_CREATED,

@@ -4,10 +4,10 @@ from fastapi import Depends
 from fastapi.routing import APIRouter
 from sqlalchemy.orm import Session
 
+from app.bill.service import BillService
 from app.db import get_db
-from app.services.bill import BillService
 
-router = APIRouter(prefix="/v0")
+router_v0 = APIRouter(prefix="/v0")
 
 
 def get_bill_service(db: Session = Depends(get_db)) -> Iterator[BillService]:

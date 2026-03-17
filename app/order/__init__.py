@@ -1,3 +1,5 @@
-from app.order.views import router
+from app.order.views import router_v0
 
-__all__ = ["router"]
+__all__ = [
+    "router_v0",
+]

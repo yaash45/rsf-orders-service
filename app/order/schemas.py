@@ -10,7 +10,7 @@ from app.db.schemas import BaseSchemaDb
 from app.order.models import OrderStatus
 
 if TYPE_CHECKING:
-    from app.db.schemas.bill import BillDb
+    from app.bill.schemas import BillDb
 
 
 class OrderItemDb(Base):
