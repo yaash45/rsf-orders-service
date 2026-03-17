@@ -4,8 +4,8 @@ from fastapi import FastAPI
 
 from app import bill, order, payment, product, user
 from app.config import Environments, config
+from app.core.db import Base, engine
 from app.core.logging import get_logger
-from app.db import Base, engine
 
 logger = get_logger(__name__)
 

@@ -5,8 +5,7 @@ from uuid import UUID as py_UUID
 from sqlalchemy import DateTime, Enum, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db import Base
-from app.db.schemas import BaseSchemaDb
+from app.core.db import Base, BaseSchemaDb
 from app.order.models import OrderStatus
 
 if TYPE_CHECKING:

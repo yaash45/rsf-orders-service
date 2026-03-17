@@ -4,7 +4,7 @@ from uuid import UUID as py_UUID
 from sqlalchemy import Boolean, Float, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.schemas import BaseSchemaDb
+from app.core.db import BaseSchemaDb
 
 if TYPE_CHECKING:
     from app.order.schemas import OrderDb

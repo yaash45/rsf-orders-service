@@ -3,7 +3,7 @@ from uuid import UUID as py_UUID
 from sqlalchemy import Float, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.schemas import BaseSchemaDb
+from app.core.db import BaseSchemaDb
 
 
 class PaymentDb(BaseSchemaDb):

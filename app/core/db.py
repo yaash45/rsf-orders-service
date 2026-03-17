@@ -4,11 +4,13 @@ from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
+from datetime import datetime
 from typing import Any
+from uuid import UUID as py_UUID
 
 import orjson
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import UUID, DateTime, create_engine
+from sqlalchemy.orm import Mapped, mapped_column, sessionmaker
 
 from app.config import config
 
@@ -57,3 +59,31 @@ def get_db():
         raise
     finally:
         db.close()
+
+
+class BaseSchemaDb(Base):
+    """
+    Base class for all database schemas. This schema represents an
+    abstract table which is:
+
+        1) Identifiable: the primary key is a UUID
+        2) Timestamped: tracks creation and modification timestamps
+    """
+
+    __abstract__ = True
+
+    # make the primary key a UUID
+    id: Mapped[py_UUID] = mapped_column(
+        UUID,
+        primary_key=True,
+    )
+
+    # track timestamps of creation and modification
+    created: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    modified: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )

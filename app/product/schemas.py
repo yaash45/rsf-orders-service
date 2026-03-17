@@ -3,8 +3,7 @@ from uuid import UUID as py_UUID
 from sqlalchemy import UUID, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db import Base
-from app.db.schemas import BaseSchemaDb
+from app.core.db import Base, BaseSchemaDb
 
 
 class ProductVariantDb(Base):

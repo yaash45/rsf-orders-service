@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import Boolean, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.schemas import BaseSchemaDb
+from app.core.db import BaseSchemaDb
 
 
 class UserDb(BaseSchemaDb):
