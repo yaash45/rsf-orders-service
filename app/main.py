@@ -2,10 +2,11 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.api.v0 import bill, order, product, user
+from app.api.v0 import bill, order, user
 from app.core.config import Environments, config
 from app.core.logging import get_logger
 from app.db import Base, engine
+from app.product import router as product_v0
 
 logger = get_logger(__name__)
 
@@ -30,7 +31,7 @@ app = FastAPI(
 app.include_router(order.router, tags=["orders"])
 app.include_router(user.router, tags=["users"])
 app.include_router(bill.router, tags=["bills"])
-app.include_router(product.router, tags=["products"])
+app.include_router(product_v0, tags=["products"])
 
 
 @app.get("/health")

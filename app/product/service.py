@@ -4,15 +4,14 @@ from uuid import UUID
 from sqlalchemy import select
 
 from app.core.logging import get_logger
-from app.db.schemas import ProductDb, ProductVariantDb
-from app.models.product import (
+from app.core.service import BaseService
+from app.product.models import (
     ProductCreate,
     ProductPublic,
     ProductVariantCreate,
     ProductVariantPublic,
 )
-
-from . import BaseService
+from app.product.schemas import ProductDb, ProductVariantDb
 
 logger = get_logger(__name__)
 

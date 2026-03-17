@@ -6,13 +6,13 @@ from fastapi.routing import APIRouter
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.models.product import (
+from app.product.models import (
     ProductCreate,
     ProductPublic,
     ProductVariantCreate,
     ProductVariantPublic,
 )
-from app.services.product import ProductService
+from app.product.service import ProductService
 
 router = APIRouter(prefix="/v0")
 
