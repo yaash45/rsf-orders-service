@@ -85,7 +85,7 @@ def register_products(
 
 
 @router.get(
-    "/products/id_map",
+    "/productIdMap",
     response_model=dict[UUID, str],
     status_code=status.HTTP_200_OK,
 )

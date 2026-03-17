@@ -1,52 +1,57 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from enum import Enum
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, PositiveInt
+from pydantic import BaseModel, ConfigDict, Field
+
+from app.models.bill import BillPublic
 
 from . import Identifiable, TimeStamped
-from .product import ProductSize
 
 
 class OrderStatus(str, Enum):
     PENDING = "Pending"
     FULFILLED = "Fulfilled"
-    PAID = "Paid"
+    CANCELLED = "Cancelled"
 
 
 class OrderBase(BaseModel):
-    # status and payments
-    status: OrderStatus = Field(default=OrderStatus.PENDING)
-    payments: list[UUID] = Field(default_factory=list)
+    """
+    Model containing base definition of an order
+    """
 
-    # identifiers
-    bill_id: UUID | None = None
+    status: OrderStatus = OrderStatus.PENDING
+
+    status_timestamp: datetime = Field(
+        default_factory=lambda: datetime.now(tz=timezone.utc)
+    )
+
     user_id: UUID
 
-    # products associated with Order
-    products: dict[UUID, dict[ProductSize, PositiveInt]] = Field(default_factory=dict)
+    items: dict[UUID, int] = {}
 
 
-class OrderCreate(OrderBase, TimeStamped): ...
+class OrderCreate(OrderBase, TimeStamped):
+    """
+    Order creation request model
+    """
 
 
-class OrderPublic(OrderBase, Identifiable, TimeStamped):
+class OrderPublic(OrderCreate, Identifiable):
+    """
+    Order model that is returned to the user
+    """
+
+    bill: BillPublic | None = None
+
     model_config = ConfigDict(from_attributes=True)
 
 
-# class Order(OrderCreate):
-#     id: UUID = Field(default_factory=uuid4)
+class OrderUpdateItems(TimeStamped, Identifiable):
+    """
+    Model to update an existing order's items
+    """
 
-#     # default order state is pending
-#     status: OrderStatus = OrderStatus.PENDING
-
-#     bill_id: UUID | None = None
-
-#     # important dates
-#     created: datetime = Field(default_factory=datetime.now)
-#     fulfilled: datetime | None = None
-#     paid: datetime | None = None
-
-#     # tracking remaining payments
-#     total: NonNegativeFloat | None = None
+    items: dict[UUID, int] = {}

@@ -1,6 +1,6 @@
 from uuid import UUID as py_UUID
 
-from sqlalchemy import Float, ForeignKey
+from sqlalchemy import Float, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.schemas.base import BaseSchemaDb
@@ -17,6 +17,9 @@ class PaymentDb(BaseSchemaDb):
 
     # the amount paid in this single payment
     amount: Mapped[float] = mapped_column(Float, nullable=False)
+
+    # payment method name
+    method: Mapped[str] = mapped_column(String(15), nullable=False)
 
     # the bill that this payment was made towards
     bill_id: Mapped[py_UUID] = mapped_column(ForeignKey("bills.id"))

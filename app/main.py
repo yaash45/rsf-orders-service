@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.api.v0 import bill, product, user
+from app.api.v0 import bill, order, product, user
 from app.core.config import Environments, config
 from app.core.logging import get_logger
 from app.db import Base, engine
@@ -27,6 +27,26 @@ app = FastAPI(
     redoc_url=None if config.ENVIRONMENT == Environments.PROD else "/redoc",
 )
 
+app.include_router(order.router, tags=["orders"])
 app.include_router(user.router, tags=["users"])
 app.include_router(bill.router, tags=["bills"])
 app.include_router(product.router, tags=["products"])
+
+
+@app.get("/health")
+async def health():
+    """
+    Health check endpoint
+    """
+    return {"status": "ok"}
+
+
+@app.get("/info")
+async def info():
+    """
+    Server information endpoint
+    """
+    return {
+        "name": config.APP_NAME,
+        "version": config.APP_VER,
+    }
