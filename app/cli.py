@@ -1,6 +1,6 @@
 import uvicorn
 
-from app.core.config import Environments, config
+from app.config import Environments, config
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)

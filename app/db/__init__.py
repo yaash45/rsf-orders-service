@@ -10,7 +10,7 @@ import orjson
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.core.config import config
+from app.config import config
 
 DATABASE_URL = config.DB_URL
 

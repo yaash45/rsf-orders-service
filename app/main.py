@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app import bill, order, payment, product, user
-from app.core.config import Environments, config
+from app.config import Environments, config
 from app.core.logging import get_logger
 from app.db import Base, engine
 
