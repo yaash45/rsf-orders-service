@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from . import Identifiable, TimeStamped
+from app.core.models import Identifiable, TimeStamped
 
 
 class ProductVariantBase(BaseModel):

@@ -6,9 +6,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.core.models import Identifiable, TimeStamped
 from app.models.bill import BillPublic
-
-from . import Identifiable, TimeStamped
 
 
 class OrderStatus(str, Enum):
