@@ -4,14 +4,14 @@ from uuid import UUID as py_UUID
 from sqlalchemy import Boolean, Float, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.core.db import BaseSchemaDb
+from app.db import BaseSchema
 
 if TYPE_CHECKING:
-    from app.order.schemas import OrderDb
-    from app.payment.schemas import PaymentDb
+    from app.order.schemas import Order
+    from app.payment.schemas import Payment
 
 
-class BillDb(BaseSchemaDb):
+class Bill(BaseSchema):
     """
     Database schema representing a bill for an order.
     """
@@ -34,7 +34,7 @@ class BillDb(BaseSchemaDb):
         nullable=False,
         unique=True,  # enforce one bill per order
     )
-    order: Mapped["OrderDb"] = relationship("OrderDb", back_populates="bill")
+    order: Mapped["Order"] = relationship("Order", back_populates="bill")
 
     # track all payments made towards this bill
-    payments: Mapped[list["PaymentDb"]] = relationship()
+    payments: Mapped[list["Payment"]] = relationship()

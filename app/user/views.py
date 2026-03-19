@@ -5,7 +5,7 @@ from fastapi import Depends
 from fastapi.routing import APIRouter
 from sqlalchemy.orm import Session
 
-from app.core.db import get_db
+from app.db import get_db
 from app.user.service import UserService
 
 logger = getLogger(__name__)

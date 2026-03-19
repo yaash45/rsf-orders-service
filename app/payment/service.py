@@ -1,11 +1,11 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
-from app.bill.schemas import BillDb
+from app.bill.schemas import Bill
 from app.core.exceptions import EntityNotFoundError
 from app.core.service import BaseService
 from app.payment.models import PaymentCreate, PaymentPublic
-from app.payment.schemas import PaymentDb
+from app.payment.schemas import Payment
 
 
 class PaymentService(BaseService):
@@ -23,7 +23,7 @@ class PaymentService(BaseService):
         Returns:
             PaymentPublic: The payment with the given ID, or None if no such payment exists.
         """
-        return self.db.get(PaymentDb, payment_id)
+        return self.db.get(Payment, payment_id)
 
     def make_payment(self, request: PaymentCreate) -> PaymentPublic:
         """
@@ -38,14 +38,14 @@ class PaymentService(BaseService):
         Raises:
             EntityNotFoundError: If the bill with the given ID does not exist.
         """
-        bill: BillDb | None = self.db.get(BillDb, request.bill_id)
+        bill: Bill | None = self.db.get(Bill, request.bill_id)
 
         if not bill:
             raise EntityNotFoundError.from_id("Bill", request.bill_id)
 
         new_payment: PaymentPublic = PaymentPublic(**request.model_dump())
 
-        db_payment = PaymentDb(
+        db_payment = Payment(
             id=new_payment.id,
             created=new_payment.created,
             modified=new_payment.modified,

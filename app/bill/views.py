@@ -5,7 +5,7 @@ from fastapi.routing import APIRouter
 from sqlalchemy.orm import Session
 
 from app.bill.service import BillService
-from app.core.db import get_db
+from app.db import get_db
 
 router_v0 = APIRouter(prefix="/v0")
 

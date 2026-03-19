@@ -7,8 +7,8 @@ from pydantic import ValidationError
 from app.core.exceptions import EntityNotFoundError
 from app.core.service import BaseService
 from app.order.models import OrderCreate, OrderPublic, OrderStatus, OrderUpdateItems
-from app.order.schemas import OrderDb, OrderItemDb
-from app.product.schemas import ProductVariantDb
+from app.order.schemas import Order, OrderItem
+from app.product.schemas import ProductVariant
 
 
 class OrderService(BaseService):
@@ -26,7 +26,7 @@ class OrderService(BaseService):
         Returns:
             OrderPublic | None: The OrderPublic object representing the order, or None if the order does not exist.
         """
-        return self.db.get(OrderDb, order_id)
+        return self.db.get(Order, order_id)
 
     def get_orders_by_user_id(self, user_id: UUID) -> Iterable[OrderPublic]:
         """
@@ -39,25 +39,23 @@ class OrderService(BaseService):
         Returns:
             Iterator[OrderPublic]: An iterator of OrderPublic objects.
         """
-        return self.db.query(OrderDb).filter(OrderDb.user_id == user_id).all()
+        return self.db.query(Order).filter(Order.user_id == user_id).all()
 
-    def _extract_validated_items(
-        self, variant_map: dict[UUID, int]
-    ) -> list[OrderItemDb]:
+    def _extract_validated_items(self, variant_map: dict[UUID, int]) -> list[OrderItem]:
         """
-        Validates and extracts OrderItemDb objects from a given variant map.
+        Validates and extracts OrderItem objects from a given variant map.
 
         Args:
             variant_map (dict[UUID, int]): A dictionary mapping product variant IDs to their quantities.
 
         Returns:
-            list[OrderItemDb]: A list of OrderItemDb objects representing the validated items.
+            list[OrderItem]: A list of OrderItem objects representing the validated items.
 
         Raises:
             ValidationError: If any of the quantities are invalid (i.e. <= 0).
             EntityNotFoundError: If any of the product variants do not exist.
         """
-        result: list[OrderItemDb] = []
+        result: list[OrderItem] = []
 
         for variant_id, quantity in variant_map.items():
             if quantity <= 0:
@@ -65,11 +63,11 @@ class OrderService(BaseService):
                     f"Invalid quantity '{quantity}'. Must be a non-zero positive integer."
                 )
 
-            if not self.db.get(ProductVariantDb, variant_id):
+            if not self.db.get(ProductVariant, variant_id):
                 raise EntityNotFoundError("Product variant", variant_id)
 
             result.append(
-                OrderItemDb(
+                OrderItem(
                     product_variant_id=variant_id,
                     quantity=quantity,
                 )
@@ -89,7 +87,7 @@ class OrderService(BaseService):
         """
 
         with self.db.begin():
-            db_order = OrderDb(
+            db_order = Order(
                 status=OrderStatus.PENDING,
                 status_timestamp=datetime.now(tz=timezone.utc),
                 user_id=request.user_id,
@@ -99,7 +97,7 @@ class OrderService(BaseService):
             # flush here to generate UUID which can be used in public model
             self.db.flush()
 
-            validated_db_items: list[OrderItemDb] = self._extract_validated_items(
+            validated_db_items: list[OrderItem] = self._extract_validated_items(
                 request.items
             )
 
@@ -123,7 +121,7 @@ class OrderService(BaseService):
             EntityNotFoundError: If the order with the given ID does not exist.
         """
         with self.db.begin():
-            db_order: OrderDb | None = self.db.get(OrderDb, request.id)
+            db_order: Order | None = self.db.get(Order, request.id)
 
             if not db_order:
                 raise EntityNotFoundError.from_id("Order", request.id)

@@ -3,10 +3,10 @@ from uuid import UUID as py_UUID
 from sqlalchemy import Float, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.core.db import BaseSchemaDb
+from app.db import BaseSchema
 
 
-class PaymentDb(BaseSchemaDb):
+class Payment(BaseSchema):
     """
     Schema representing the payments made towards an order.
 

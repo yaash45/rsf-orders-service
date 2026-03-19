@@ -3,10 +3,10 @@ from uuid import UUID as py_UUID
 from sqlalchemy import UUID, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.core.db import Base, BaseSchemaDb
+from app.db import Base, BaseSchema
 
 
-class ProductVariantDb(Base):
+class ProductVariant(Base):
     """
     Represents the specific variant of a product in the system
     """
@@ -26,10 +26,10 @@ class ProductVariantDb(Base):
     product_id: Mapped[py_UUID] = mapped_column(ForeignKey("products.id"))
 
     def __repr__(self):
-        return f"ProductVariantDb(size={self.size}, kind={self.kind}, product_id={self.product_id}) at {id(self)}"
+        return f"ProductVariant(size={self.size}, kind={self.kind}, product_id={self.product_id}) at {id(self)}"
 
 
-class ProductDb(BaseSchemaDb):
+class Product(BaseSchema):
     """
     Represents a product registered in the system
     """
@@ -41,7 +41,7 @@ class ProductDb(BaseSchemaDb):
     description: Mapped[str] = mapped_column(String, nullable=True)
 
     # available variants
-    available_variants: Mapped[list["ProductVariantDb"]] = relationship()
+    available_variants: Mapped[list["ProductVariant"]] = relationship()
 
     def __repr__(self):
-        return f"ProductDb(name={self.name}, description={self.description}, available_variants={self.available_variants}) at {id(self)}"
+        return f"Product(name={self.name}, description={self.description}, available_variants={self.available_variants}) at {id(self)}"

@@ -11,7 +11,7 @@ from app.product.models import (
     ProductVariantCreate,
     ProductVariantPublic,
 )
-from app.product.schemas import ProductDb, ProductVariantDb
+from app.product.schemas import Product, ProductVariant
 
 logger = get_logger(__name__)
 
@@ -31,7 +31,7 @@ class ProductService(BaseService):
         Returns:
             ProductPublic: The product with the given ID, or None if no such product exists.
         """
-        return self.db.get(ProductDb, product_id)
+        return self.db.get(Product, product_id)
 
     def register_products(self, request: list[ProductCreate]) -> list[ProductPublic]:
         """
@@ -48,7 +48,7 @@ class ProductService(BaseService):
         for product_creation in request:
             new_product = ProductPublic(**product_creation.model_dump())
 
-            db_product = ProductDb(
+            db_product = Product(
                 id=new_product.id,
                 created=new_product.created,
                 modified=new_product.modified,
@@ -62,7 +62,7 @@ class ProductService(BaseService):
                     product_id=new_product.id,
                 )
 
-                db_variant = ProductVariantDb(
+                db_variant = ProductVariant(
                     id=public_variant.id,
                     size=public_variant.size,
                     kind=public_variant.kind,
@@ -88,7 +88,7 @@ class ProductService(BaseService):
         Returns:
             dict[UUID, str]: A dictionary mapping product IDs to their names
         """
-        return {p.id: p.name for p in self.db.query(ProductDb).all()}
+        return {p.id: p.name for p in self.db.query(Product).all()}
 
     def get_variants_for_product(self, product_id: UUID) -> list[ProductVariantPublic]:
         """
@@ -102,9 +102,7 @@ class ProductService(BaseService):
         """
         return list(
             self.db.execute(
-                select(ProductVariantDb).where(
-                    ProductVariantDb.product_id == product_id
-                )
+                select(ProductVariant).where(ProductVariant.product_id == product_id)
             )
             .scalars()
             .all()
@@ -127,7 +125,7 @@ class ProductService(BaseService):
                 **variant.model_dump(),
                 product_id=product_id,
             )
-            db_variant = ProductVariantDb(
+            db_variant = ProductVariant(
                 id=new_variant.id,
                 size=new_variant.size,
                 kind=new_variant.kind,
@@ -136,7 +134,7 @@ class ProductService(BaseService):
             self.db.add(db_variant)
             result.append(new_variant)
 
-        product: ProductDb | None = self.db.get(ProductDb, product_id)
+        product: Product | None = self.db.get(Product, product_id)
 
         if product is None:
             raise ValueError(f"Product with ID {product_id} not found")

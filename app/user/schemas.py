@@ -3,10 +3,10 @@ from datetime import datetime
 from sqlalchemy import Boolean, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.core.db import BaseSchemaDb
+from app.db import BaseSchema
 
 
-class UserDb(BaseSchemaDb):
+class User(BaseSchema):
     """
     Represents a user in the rsf-orders system
     """
@@ -26,7 +26,7 @@ class UserDb(BaseSchemaDb):
         return f"<{self.__class__.__name__} name={self.name}, email={self.email}, created={self.created}, kind={self.kind}, id={self.id}>"
 
 
-class UserCredentialsDb(BaseSchemaDb):
+class UserCredentials(BaseSchema):
     """
     Represents authentication-related information for a specific user.
     """
@@ -38,7 +38,7 @@ class UserCredentialsDb(BaseSchemaDb):
     email_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     # references the User that this credential belongs to
-    user: Mapped["UserDb"] = mapped_column(
+    user: Mapped["User"] = mapped_column(
         ForeignKey("users.id"),
         unique=True,
         index=True,

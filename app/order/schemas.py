@@ -5,14 +5,14 @@ from uuid import UUID as py_UUID
 from sqlalchemy import DateTime, Enum, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.core.db import Base, BaseSchemaDb
+from app.db import Base, BaseSchema
 from app.order.models import OrderStatus
 
 if TYPE_CHECKING:
-    from app.bill.schemas import BillDb
+    from app.bill.schemas import Bill
 
 
-class OrderItemDb(Base):
+class OrderItem(Base):
     """
     Represents an item that is part of an order, specifying the product,
     its variant, and quantity
@@ -36,7 +36,7 @@ class OrderItemDb(Base):
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
 
 
-class OrderDb(BaseSchemaDb):
+class Order(BaseSchema):
     """
     Represents the orders made by various users
     """
@@ -57,11 +57,11 @@ class OrderDb(BaseSchemaDb):
     user_id: Mapped[py_UUID] = mapped_column(ForeignKey("users.id"))
 
     # tracks which products were ordered, and how many
-    items: Mapped[list["OrderItemDb"]] = relationship()
+    items: Mapped[list["OrderItem"]] = relationship()
 
     # bill associated with the order
-    bill: Mapped["BillDb | None"] = relationship(
-        "BillDb",
+    bill: Mapped["Bill | None"] = relationship(
+        "Bill",
         uselist=False,
         back_populates="order",
     )
