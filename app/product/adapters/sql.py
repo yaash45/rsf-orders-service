@@ -3,8 +3,11 @@ from datetime import datetime, timezone
 from typing import Iterable
 from uuid import UUID
 
-from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy import UUID as sql_UUID
+from sqlalchemy import ForeignKey, String, select
+from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
+
+from app.db import Base, BaseSchema
 
 from ..domain.models import (
     ProductCreate,
@@ -13,7 +16,47 @@ from ..domain.models import (
     ProductVariantPublic,
 )
 from ..domain.ports import ProductPort
-from ..schemas import Product, ProductVariant
+
+
+class ProductVariant(Base):
+    """
+    Represents the specific variant of a product in the system
+    """
+
+    __tablename__ = "product_variants"
+
+    # identify a variant and it's associated product using a UUID
+    id: Mapped[UUID] = mapped_column(sql_UUID, primary_key=True)
+
+    # a nice label (e.g. "30 mL", "10 mL", etc.)
+    size: Mapped[str] = mapped_column(String, nullable=False)
+
+    # the kind of product (e.g. bottle, roll-on, spray, can, etc.)
+    kind: Mapped[str] = mapped_column(String, nullable=False)
+
+    # the product specified by this variant
+    product_id: Mapped[UUID] = mapped_column(ForeignKey("products.id"))
+
+    def __repr__(self):
+        return f"ProductVariant(size={self.size}, kind={self.kind}, product_id={self.product_id}) at {id(self)}"
+
+
+class Product(BaseSchema):
+    """
+    Represents a product registered in the system
+    """
+
+    __tablename__ = "products"
+
+    # basic information
+    name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    description: Mapped[str] = mapped_column(String, nullable=True)
+
+    # available variants
+    available_variants: Mapped[list["ProductVariant"]] = relationship()
+
+    def __repr__(self):
+        return f"Product(name={self.name}, description={self.description}, available_variants={self.available_variants}) at {id(self)}"
 
 
 @dataclass
