@@ -6,7 +6,8 @@ from fastapi.routing import APIRouter
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.product.models import (
+from app.product.adapters import SqlProductAdapter
+from app.product.domain.models import (
     ProductCreate,
     ProductPublic,
     ProductVariantCreate,
@@ -23,7 +24,7 @@ def get_product_service(db: Session = Depends(get_db)) -> Iterator[ProductServic
 
     Yields an instance of ProductService that is bound to the provided database session.
     """
-    yield ProductService(db=db)
+    yield ProductService.instance(port=SqlProductAdapter(db))
 
 
 @router_v0.get(
