@@ -1,25 +1,30 @@
-from datetime import datetime, timezone
+from dataclasses import dataclass
 from uuid import UUID
 
-from sqlalchemy import select
-
 from app.core.logging import get_logger
-from app.core.service import BaseService
-from app.product.models import (
+
+from .domain.models import (
     ProductCreate,
     ProductPublic,
     ProductVariantCreate,
     ProductVariantPublic,
 )
-from app.product.schemas import Product, ProductVariant
+from .domain.ports import ProductPort
 
 logger = get_logger(__name__)
 
 
-class ProductService(BaseService):
+@dataclass
+class ProductService:
     """
     Service meant for product-based interactions
     """
+
+    port: ProductPort
+
+    @classmethod
+    def instance(cls, port: ProductPort) -> "ProductService":
+        return cls(port=port)
 
     def get_product(self, product_id: UUID) -> ProductPublic | None:
         """
@@ -31,7 +36,7 @@ class ProductService(BaseService):
         Returns:
             ProductPublic: The product with the given ID, or None if no such product exists.
         """
-        return self.db.get(Product, product_id)
+        return self.port.fetch_one(product_id=product_id)
 
     def register_products(self, request: list[ProductCreate]) -> list[ProductPublic]:
         """
@@ -43,43 +48,7 @@ class ProductService(BaseService):
         Returns:
             list[ProductPublic]: A list of newly registered products with their respective variants.
         """
-        result: list[ProductPublic] = []
-
-        for product_creation in request:
-            new_product = ProductPublic(**product_creation.model_dump())
-
-            db_product = Product(
-                id=new_product.id,
-                created=new_product.created,
-                modified=new_product.modified,
-                name=new_product.name,
-                description=new_product.description,
-            )
-
-            for variant in new_product.available_variants:
-                public_variant = ProductVariantPublic(
-                    **variant.model_dump(),
-                    product_id=new_product.id,
-                )
-
-                db_variant = ProductVariant(
-                    id=public_variant.id,
-                    size=public_variant.size,
-                    kind=public_variant.kind,
-                    product_id=public_variant.product_id,
-                )
-
-                db_product.available_variants.append(db_variant)
-
-                self.db.add(db_variant)
-
-            self.db.add(db_product)
-
-            result.append(new_product)
-
-        self.db.commit()
-
-        return result
+        return list(self.port.add_products(products=request))
 
     def get_product_id_map(self) -> dict[UUID, str]:
         """
@@ -88,7 +57,7 @@ class ProductService(BaseService):
         Returns:
             dict[UUID, str]: A dictionary mapping product IDs to their names
         """
-        return {p.id: p.name for p in self.db.query(Product).all()}
+        return self.port.fetch_id_map()
 
     def get_variants_for_product(self, product_id: UUID) -> list[ProductVariantPublic]:
         """
@@ -100,13 +69,7 @@ class ProductService(BaseService):
         Returns:
             list[ProductVariantPublic]: A list of ProductVariantPublic objects for the given product ID.
         """
-        return list(
-            self.db.execute(
-                select(ProductVariant).where(ProductVariant.product_id == product_id)
-            )
-            .scalars()
-            .all()
-        )
+        return list(self.port.fetch_variants(product_id=product_id))
 
     def add_available_variants(
         self, product_id: UUID, variants: list[ProductVariantCreate]
@@ -118,30 +81,4 @@ class ProductService(BaseService):
             product_id (UUID): The ID of the product to add variants for.
             variants (list[ProductVariantCreate]): A list of ProductVariantCreate objects to add as available variants.
         """
-        result: list[ProductVariantPublic] = []
-
-        for variant in variants:
-            new_variant = ProductVariantPublic(
-                **variant.model_dump(),
-                product_id=product_id,
-            )
-            db_variant = ProductVariant(
-                id=new_variant.id,
-                size=new_variant.size,
-                kind=new_variant.kind,
-                product_id=new_variant.product_id,
-            )
-            self.db.add(db_variant)
-            result.append(new_variant)
-
-        product: Product | None = self.db.get(Product, product_id)
-
-        if product is None:
-            raise ValueError(f"Product with ID {product_id} not found")
-
-        # update the product modified timestamp since we updated it's available variants
-        product.modified = datetime.now(timezone.utc)
-
-        self.db.commit()
-
-        return result
+        return list(self.port.add_variants(product_id=product_id, variants=variants))

@@ -8,7 +8,7 @@ from app.core.exceptions import EntityNotFoundError
 from app.core.service import BaseService
 from app.order.models import OrderCreate, OrderPublic, OrderStatus, OrderUpdateItems
 from app.order.schemas import Order, OrderItem
-from app.product.schemas import ProductVariant
+from app.product.adapters.sql import ProductVariant
 
 
 class OrderService(BaseService):
