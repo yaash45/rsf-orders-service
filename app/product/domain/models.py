@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from enum import Enum
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -7,12 +8,17 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.core.models import Identifiable, TimeStamped
 
 
+class ProductVariantUnit(str, Enum):
+    MILLI_LITER = "mL"
+    LITER = "L"
+
 class ProductVariantBase(BaseModel):
     """
     Base model describing a specific product variant's properties
     """
 
-    size: str
+    size: int
+    unit: ProductVariantUnit
     kind: str
 
 

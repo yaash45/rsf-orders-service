@@ -4,7 +4,7 @@ from typing import Iterable
 from uuid import UUID
 
 from sqlalchemy import UUID as sql_UUID
-from sqlalchemy import ForeignKey, String, select
+from sqlalchemy import ForeignKey, Integer, String, select
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 
 from app.db import Base, BaseSchema
@@ -28,8 +28,11 @@ class ProductVariant(Base):
     # identify a variant and it's associated product using a UUID
     id: Mapped[UUID] = mapped_column(sql_UUID, primary_key=True)
 
-    # a nice label (e.g. "30 mL", "10 mL", etc.)
-    size: Mapped[str] = mapped_column(String, nullable=False)
+    # the product variant's size, without the unit
+    size: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    # unit for the size value
+    unit: Mapped[str] = mapped_column(String, nullable=False)
 
     # the kind of product (e.g. bottle, roll-on, spray, can, etc.)
     kind: Mapped[str] = mapped_column(String, nullable=False)
@@ -101,6 +104,7 @@ class SqlProductAdapter(ProductPort):
                 db_variant = ProductVariant(
                     id=public_variant.id,
                     size=public_variant.size,
+                    unit=public_variant.unit.value,
                     kind=public_variant.kind,
                     product_id=public_variant.product_id,
                 )
@@ -130,6 +134,7 @@ class SqlProductAdapter(ProductPort):
             db_variant = ProductVariant(
                 id=new_variant.id,
                 size=new_variant.size,
+                unit=new_variant.unit.value,
                 kind=new_variant.kind,
                 product_id=new_variant.product_id,
             )
