@@ -10,7 +10,7 @@ DATABASE_URL = config.DB_URL
 
 if DATABASE_URL is None:
     raise OSError(
-        "DATABASE_URL environment variable not set. Failed to determine database url."
+        "DB_URL environment variable not set. Failed to determine database url."
     )
 
 
