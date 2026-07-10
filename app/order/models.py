@@ -6,7 +6,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.bill.models import BillPublic
+from app.bill.domain.models import BillPublic
 from app.core.models import Identifiable, TimeStamped
 
 

@@ -8,7 +8,3 @@ __all__ = [
     "SessionLocal",
     "get_db",
 ]
-
-
-# the db schemas need to be registered
-import app.db.registry  # noqa: F401

@@ -1,4 +1,4 @@
-from app.bill.schemas import Bill  # noqa:F401
+from app.bill.adapters.sql import Bill  # noqa:F401
 from app.order.schemas import Order, OrderItem  # noqa:F401
 from app.payment.schemas import Payment  # noqa:F401
 from app.product.adapters.sql import Product, ProductVariant  # noqa:F401

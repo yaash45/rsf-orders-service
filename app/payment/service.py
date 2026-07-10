@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
-from app.bill.schemas import Bill
+from app.bill.adapters.sql import Bill
 from app.core.exceptions import EntityNotFoundError
 from app.core.service import BaseService
 from app.payment.models import PaymentCreate, PaymentPublic

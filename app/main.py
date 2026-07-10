@@ -5,7 +5,6 @@ from fastapi import FastAPI
 from app import bill, order, payment, product, user
 from app.config import Environments, config
 from app.core.logging import get_logger
-from app.db import Base, engine
 
 logger = get_logger(__name__)
 
@@ -13,6 +12,10 @@ logger = get_logger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Creating database tables")
+    # the db schemas need to be registered
+    import app.db.registry as _registry  # noqa: F401
+    from app.db import Base, engine
+
     Base.metadata.create_all(bind=engine)
     yield
 
