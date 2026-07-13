@@ -8,7 +8,7 @@ from app.bill.domain.models import BillCreate, BillPublic
 from app.db import BaseSchema
 
 if TYPE_CHECKING:
-    from app.order.schemas import Order
+    from app.order.adapters.sql import Order
     from app.payment.schemas import Payment
 
 from dataclasses import dataclass

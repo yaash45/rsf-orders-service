@@ -16,6 +16,11 @@ class OrderStatus(str, Enum):
     CANCELLED = "cancelled"
 
 
+class OrderItemPublic(BaseModel):
+    product_variant_id: UUID
+    quantity: int = Field(gt=0)
+
+
 class OrderBase(BaseModel):
     """
     Model containing base definition of an order
@@ -29,7 +34,7 @@ class OrderBase(BaseModel):
 
     user_id: UUID
 
-    items: dict[UUID, int] = {}
+    items: list[OrderItemPublic] = Field(default_factory=list)
 
 
 class OrderCreate(OrderBase, TimeStamped):
@@ -53,4 +58,4 @@ class OrderUpdateItems(TimeStamped, Identifiable):
     Model to update an existing order's items
     """
 
-    items: dict[UUID, int] = {}
+    items: list[OrderItemPublic] = Field(default_factory=list)
