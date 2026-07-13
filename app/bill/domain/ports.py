@@ -9,12 +9,10 @@ class BillPort(Protocol):
         """
         Fetch a bill for a given order
         """
-
-        raise NotImplementedError("not implemented yet")
+        ...
 
     def create_bill(self, request: BillCreate) -> BillPublic:
         """
         Create a new bill for an order
         """
-
-        raise NotImplementedError("not implemented yet")
+        ...
