@@ -78,7 +78,7 @@ class Order(BaseSchema):
 
 
 @dataclass
-class SqlOrderAdapter(OrderPort):
+class OrderSqlAdapter(OrderPort):
     db: Session
 
     def get_order_by_id(self, order_id: py_UUID) -> OrderPublic | None:

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 from dataclasses import dataclass
 
-from app.bill.domain.ports import BillPort
+from app.bill.domain.port import BillPort
 
 
 class Bill(BaseSchema):
@@ -46,7 +46,7 @@ class Bill(BaseSchema):
 
 
 @dataclass
-class SqlBillAdapter(BillPort):
+class BillSqlAdapter(BillPort):
     db: Session
 
     def fetch_for_order(self, order_id: py_UUID) -> BillPublic | None:

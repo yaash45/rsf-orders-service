@@ -1,5 +1,5 @@
-from app.user.adapters.sql import SqlUserAdapter
+from app.user.adapters.sql import UserSqlAdapter
 
 __all__ = [
-    "SqlUserAdapter",
+    "UserSqlAdapter",
 ]

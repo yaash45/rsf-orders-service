@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from app.bill.domain.models import BillCreate, BillPublic
-from app.bill.domain.ports import BillPort
+from app.bill.domain.port import BillPort
 from app.core.logging import get_logger
 from app.core.service import BaseService
 

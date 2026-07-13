@@ -7,9 +7,8 @@ from sqlalchemy import Boolean, DateTime, ForeignKey, String, exists, select
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from app.db import BaseSchema
-
-from ..domain.models import UserCreate, UserPublic
-from ..domain.ports import UserPort
+from app.user.domain.models import UserCreate, UserPublic
+from app.user.domain.port import UserPort
 
 
 class User(BaseSchema):
@@ -64,9 +63,8 @@ class UserCredentials(BaseSchema):
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
 
-
 @dataclass
-class SqlUserAdapter(UserPort):
+class UserSqlAdapter(UserPort):
     db: Session
 
     def user_with_email_exists(self, email: str) -> bool:

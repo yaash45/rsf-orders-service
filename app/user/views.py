@@ -7,10 +7,9 @@ from sqlalchemy.orm import Session
 
 from app.core.exceptions import ConflictError, EntityNotFoundError
 from app.db import get_db
-
-from .adapters import SqlUserAdapter
-from .domain.models import UserCreate, UserPublic
-from .service import UserService
+from app.user.adapters import UserSqlAdapter
+from app.user.domain.models import UserCreate, UserPublic
+from app.user.service import UserService
 
 router_v0 = APIRouter(prefix="/v0")
 
@@ -19,7 +18,7 @@ def get_user_service(db: Session = Depends(get_db)) -> Iterator[UserService]:
     """
     Gets an instance of the UserService with the Sql-backed user adapter
     """
-    yield UserService.instance(SqlUserAdapter(db=db))
+    yield UserService.instance(UserSqlAdapter(db=db))
 
 
 @router_v0.get("/users")

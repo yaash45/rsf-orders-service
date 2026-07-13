@@ -4,7 +4,7 @@ from fastapi import Depends
 from fastapi.routing import APIRouter
 from sqlalchemy.orm import Session
 
-from app.bill.adapters.sql import SqlBillAdapter
+from app.bill.adapters import BillSqlAdapter
 from app.bill.domain.models import BillCreate, BillPublic
 from app.bill.service import BillService
 from app.db import get_db
@@ -19,7 +19,7 @@ def get_bill_service(db: Session = Depends(get_db)) -> Iterator[BillService]:
     The BillService instance is used to encapsulate database operations
     related to bills.
     """
-    yield BillService.instance(port=SqlBillAdapter(db))
+    yield BillService.instance(port=BillSqlAdapter(db))
 
 
 @router_v0.post("/bills/")

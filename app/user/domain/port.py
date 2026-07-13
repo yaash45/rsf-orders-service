@@ -1,7 +1,7 @@
 from typing import Iterable, Protocol
 from uuid import UUID
 
-from .models import UserCreate, UserPublic
+from app.user.domain.models import UserCreate, UserPublic
 
 
 class UserPort(Protocol):

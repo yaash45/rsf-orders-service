@@ -2,14 +2,13 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from app.core.logging import get_logger
-
-from .domain.models import (
+from app.product.domain.models import (
     ProductCreate,
     ProductPublic,
     ProductVariantCreate,
     ProductVariantPublic,
 )
-from .domain.ports import ProductPort
+from app.product.domain.port import ProductPort
 
 logger = get_logger(__name__)
 

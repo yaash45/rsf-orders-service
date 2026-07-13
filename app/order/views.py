@@ -6,7 +6,7 @@ from fastapi.routing import APIRouter
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.order.adapters import SqlOrderAdapter
+from app.order.adapters import OrderSqlAdapter
 from app.order.domain.models import OrderCreate, OrderPublic, OrderUpdateItems
 from app.order.service import OrderService
 
@@ -20,7 +20,7 @@ def get_order_service(db: Session = Depends(get_db)) -> Iterator:
     The OrderService instance is used to encapsulate database operations
     related to orders.
     """
-    yield OrderService.instance(port=SqlOrderAdapter(db))
+    yield OrderService.instance(port=OrderSqlAdapter(db))
 
 
 @router_v0.get(

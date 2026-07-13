@@ -2,9 +2,8 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from app.core.exceptions import ConflictError, EntityNotFoundError
-
-from .domain.models import UserCreate, UserPublic
-from .domain.ports import UserPort
+from app.user.domain.models import UserCreate, UserPublic
+from app.user.domain.port import UserPort
 
 
 @dataclass(frozen=True)

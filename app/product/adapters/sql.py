@@ -8,14 +8,13 @@ from sqlalchemy import ForeignKey, Integer, String, select
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 
 from app.db import Base, BaseSchema
-
-from ..domain.models import (
+from app.product.domain.models import (
     ProductCreate,
     ProductPublic,
     ProductVariantCreate,
     ProductVariantPublic,
 )
-from ..domain.ports import ProductPort
+from app.product.domain.port import ProductPort
 
 
 class ProductVariant(Base):
@@ -63,7 +62,7 @@ class Product(BaseSchema):
 
 
 @dataclass
-class SqlProductAdapter(ProductPort):
+class ProductSqlAdapter(ProductPort):
     db: Session
 
     def fetch_one(self, product_id: UUID) -> ProductPublic | None:

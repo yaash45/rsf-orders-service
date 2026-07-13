@@ -1,7 +1,7 @@
 from typing import Iterable, Protocol
 from uuid import UUID
 
-from .models import (
+from app.product.domain.models import (
     ProductCreate,
     ProductPublic,
     ProductVariantCreate,

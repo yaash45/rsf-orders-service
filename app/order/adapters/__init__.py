@@ -1,5 +1,5 @@
-from app.order.adapters.sql import SqlOrderAdapter
+from app.order.adapters.sql import OrderSqlAdapter
 
 __all__ = [
-    "SqlOrderAdapter",
+    "OrderSqlAdapter",
 ]

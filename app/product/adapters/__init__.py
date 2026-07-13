@@ -1,5 +1,5 @@
-from .sql import SqlProductAdapter
+from app.product.adapters.sql import ProductSqlAdapter
 
 __all__ = [
-    "SqlProductAdapter",
+    "ProductSqlAdapter",
 ]
