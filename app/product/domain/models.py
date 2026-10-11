@@ -12,6 +12,7 @@ class ProductVariantUnit(str, Enum):
     MILLI_LITER = "mL"
     LITER = "L"
 
+
 class ProductVariantBase(BaseModel):
     """
     Base model describing a specific product variant's properties

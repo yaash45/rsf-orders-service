@@ -1,5 +1,5 @@
+from collections.abc import Iterator
 from logging import getLogger
-from typing import Iterator
 
 from fastapi import Depends
 from fastapi.routing import APIRouter

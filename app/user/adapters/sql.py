@@ -1,6 +1,6 @@
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Iterable
 from uuid import UUID
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, String, exists, select

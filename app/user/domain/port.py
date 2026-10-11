@@ -1,4 +1,5 @@
-from typing import Iterable, Protocol
+from collections.abc import Iterable
+from typing import Protocol
 from uuid import UUID
 
 from app.user.domain.models import UserCreate, UserPublic

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from app.bill.adapters.sql import Bill
@@ -66,7 +66,7 @@ class PaymentService(BaseService):
             # if a refund was issued, bill may no longer be paid
             bill.paid = False
 
-        bill.modified = datetime.now(tz=timezone.utc)
+        bill.modified = datetime.now(tz=UTC)
 
         self.db.commit()
 

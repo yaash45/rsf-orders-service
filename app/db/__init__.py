@@ -4,7 +4,7 @@ from .session import SessionLocal, engine, get_db
 __all__ = [
     "Base",
     "BaseSchema",
-    "engine",
     "SessionLocal",
+    "engine",
     "get_db",
 ]
