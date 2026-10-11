@@ -6,47 +6,41 @@ from sqlalchemy.orm import sessionmaker
 
 from app.config import config
 
-DATABASE_URL = config.DB_URL
 
-if DATABASE_URL is None:
-    raise OSError(
-        "DB_URL environment variable not set. Failed to determine database url."
-    )
-
-
-def orjson_serializer(obj: Any):
-    """
-    Note that `orjson.dumps()` return byte array, while sqlalchemy expects string, thus `decode()` call.
-    This function helped to solve JSON datetime conversion issue on JSONB column
-    """
+def orjson_serializer(obj: Any) -> str:
     return orjson.dumps(
         obj, option=orjson.OPT_SERIALIZE_NUMPY | orjson.OPT_NAIVE_UTC
     ).decode()
 
 
-engine = create_engine(
-    DATABASE_URL,
-    json_serializer=orjson_serializer,
-    json_deserializer=orjson.loads,
-    connect_args={"check_same_thread": False}
-    if DATABASE_URL.startswith("sqlite")
-    else {},
-)
+def create_db_engine(database_url: str):
+    return create_engine(
+        database_url,
+        json_serializer=orjson_serializer,
+        json_deserializer=orjson.loads,
+        connect_args={"check_same_thread": False}
+        if database_url.startswith("sqlite")
+        else {},
+    )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+engine = create_db_engine(config.DB_URL) if config.DB_URL is not None else None
+
+SessionLocal = (
+    sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    if engine is not None
+    else None
+)
 
 
 def get_db():
-    """
-    Yields a database session.
+    if SessionLocal is None:
+        raise RuntimeError("Database is not configured.")
 
-    The session is automatically rolled back if an exception occurs,
-    and automatically closed when the context manager exits.
-    """
     db = SessionLocal()
     try:
         yield db
-    except:
+    except Exception:
         db.rollback()
         raise
     finally:

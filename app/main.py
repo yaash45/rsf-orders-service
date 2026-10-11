@@ -16,7 +16,8 @@ async def lifespan(app: FastAPI):
     import app.db.registry as _registry  # noqa: F401
     from app.db import Base, engine
 
-    Base.metadata.create_all(bind=engine)
+    if engine:
+        Base.metadata.create_all(bind=engine)
     yield
 
     logger.info("Shutting down")
