@@ -54,3 +54,11 @@ async def info():
         "name": config.APP_NAME,
         "version": config.APP_VER,
     }
+
+
+@app.get("/")
+async def root():
+    """
+    Simple status ok endpoint on root
+    """
+    return {"status": "ok"}

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from uuid import UUID
 
@@ -28,9 +28,7 @@ class OrderBase(BaseModel):
 
     status: OrderStatus = OrderStatus.PENDING
 
-    status_timestamp: datetime = Field(
-        default_factory=lambda: datetime.now(tz=timezone.utc)
-    )
+    status_timestamp: datetime = Field(default_factory=lambda: datetime.now(tz=UTC))
 
     user_id: UUID
 

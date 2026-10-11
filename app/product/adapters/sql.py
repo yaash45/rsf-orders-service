@@ -1,6 +1,6 @@
+from collections.abc import Iterable
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Iterable
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import UUID as sql_UUID
@@ -146,7 +146,7 @@ class ProductSqlAdapter(ProductPort):
             raise ValueError(f"Product with ID {product_id} not found")
 
         # update the product modified timestamp since we updated it's available variants
-        product.modified = datetime.now(timezone.utc)
+        product.modified = datetime.now(UTC)
 
         self.db.commit()
 

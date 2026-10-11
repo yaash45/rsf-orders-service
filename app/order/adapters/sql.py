@@ -1,6 +1,7 @@
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 from uuid import UUID as py_UUID
 
 from sqlalchemy import DateTime, Enum, ForeignKey, Integer
