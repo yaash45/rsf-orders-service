@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
@@ -18,7 +19,9 @@ from app.product.service import ProductService
 router_v0 = APIRouter(prefix="/v0")
 
 
-def get_product_service(db: Session = Depends(get_db)) -> Iterator[ProductService]:
+def get_product_service(
+    db: Annotated[Session, Depends(get_db)],
+) -> Iterator[ProductService]:
     """
     Returns an instance of ProductService that can be used to interact with the database.
 
@@ -39,7 +42,7 @@ def get_product_service(db: Session = Depends(get_db)) -> Iterator[ProductServic
 )
 def get_product(
     product_id: UUID,
-    service: ProductService = Depends(get_product_service),
+    service: Annotated[ProductService, Depends(get_product_service)],
 ) -> ProductPublic:
     """
     Retrieves a single Product queried by id
@@ -71,7 +74,7 @@ def get_product(
 )
 def register_products(
     request: list[ProductCreate],
-    service: ProductService = Depends(get_product_service),
+    service: Annotated[ProductService, Depends(get_product_service)],
 ) -> list[ProductPublic]:
     """
     Registers a list of products with their respective variants.
@@ -91,7 +94,7 @@ def register_products(
     status_code=status.HTTP_200_OK,
 )
 def get_product_id_map(
-    service: ProductService = Depends(get_product_service),
+    service: Annotated[ProductService, Depends(get_product_service)],
 ) -> dict[UUID, str]:
     """
     Retrieves a dictionary mapping product IDs to their respective names.
@@ -109,7 +112,7 @@ def get_product_id_map(
 )
 def get_variants_for_product(
     product_id: UUID,
-    service: ProductService = Depends(get_product_service),
+    service: Annotated[ProductService, Depends(get_product_service)],
 ) -> list[ProductVariantPublic]:
     """
     Retrieves a list of ProductVariantPublic objects for a given product ID.
@@ -131,7 +134,7 @@ def get_variants_for_product(
 def add_available_variants(
     product_id: UUID,
     variants: list[ProductVariantCreate],
-    service: ProductService = Depends(get_product_service),
+    service: Annotated[ProductService, Depends(get_product_service)],
 ) -> list[ProductVariantPublic]:
     """
     Adds a list of ProductVariantCreate objects as available variants for a given product ID.

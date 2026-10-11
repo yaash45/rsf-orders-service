@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+from typing import Annotated
 
 from fastapi import Depends
 from fastapi.routing import APIRouter
@@ -12,7 +13,7 @@ from app.db import get_db
 router_v0 = APIRouter(prefix="/v0")
 
 
-def get_bill_service(db: Session = Depends(get_db)) -> Iterator[BillService]:
+def get_bill_service(db: Annotated[Session, Depends(get_db)]) -> Iterator[BillService]:
     """
     Returns a BillService instance using the provided database session.
 
@@ -25,6 +26,6 @@ def get_bill_service(db: Session = Depends(get_db)) -> Iterator[BillService]:
 @router_v0.post("/bills/")
 def issue_bill(
     request: BillCreate,
-    service: BillService = Depends(get_bill_service),
+    service: Annotated[BillService, Depends(get_bill_service)],
 ) -> BillPublic:
     return service.issue_bill(request=request)

@@ -1,5 +1,6 @@
 from collections.abc import Iterator
 from logging import getLogger
+from typing import Annotated
 
 from fastapi import Depends
 from fastapi.routing import APIRouter
@@ -13,7 +14,9 @@ logger = getLogger(__name__)
 router_v0 = APIRouter(prefix="/v0")
 
 
-def get_payment_service(db: Session = Depends(get_db)) -> Iterator[PaymentService]:
+def get_payment_service(
+    db: Annotated[Session, Depends(get_db)],
+) -> Iterator[PaymentService]:
     """
     Returns a UserService instance using the provided database session.
 

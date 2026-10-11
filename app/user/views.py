@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
@@ -14,7 +15,7 @@ from app.user.service import UserService
 router_v0 = APIRouter(prefix="/v0")
 
 
-def get_user_service(db: Session = Depends(get_db)) -> Iterator[UserService]:
+def get_user_service(db: Annotated[Session, Depends(get_db)]) -> Iterator[UserService]:
     """
     Gets an instance of the UserService with the Sql-backed user adapter
     """
@@ -23,8 +24,8 @@ def get_user_service(db: Session = Depends(get_db)) -> Iterator[UserService]:
 
 @router_v0.get("/users")
 def get_users(
+    service: Annotated[UserService, Depends(get_user_service)],
     email: str | None = None,
-    service: UserService = Depends(get_user_service),
 ) -> list[UserPublic]:
     """
     Get all the users registered in the database
@@ -47,7 +48,7 @@ def get_users(
 @router_v0.get("/users/{user_id}")
 def get_user_by_id(
     user_id: UUID,
-    service: UserService = Depends(get_user_service),
+    service: Annotated[UserService, Depends(get_user_service)],
 ) -> UserPublic:
     """
     Gets a user from the database if one exists,
@@ -72,7 +73,7 @@ def get_user_by_id(
 )
 def create_new_user(
     request: UserCreate,
-    service: UserService = Depends(get_user_service),
+    service: Annotated[UserService, Depends(get_user_service)],
 ) -> UserPublic:
     """
     Creates a set of new users in the database
