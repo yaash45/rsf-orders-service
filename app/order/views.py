@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
@@ -13,7 +14,7 @@ from app.order.service import OrderService
 router_v0 = APIRouter(prefix="/v0")
 
 
-def get_order_service(db: Session = Depends(get_db)) -> Iterator:
+def get_order_service(db: Annotated[Session, Depends(get_db)]) -> Iterator:
     """
     Returns an instance of OrderService that can be used to interact with the database.
 
@@ -35,7 +36,7 @@ def get_order_service(db: Session = Depends(get_db)) -> Iterator:
 )
 def get_order_by_id(
     order_id: UUID,
-    service: OrderService = Depends(get_order_service),
+    service: Annotated[OrderService, Depends(get_order_service)],
 ) -> OrderPublic:
     """
     Retrieves an order by its ID.
@@ -64,7 +65,7 @@ def get_order_by_id(
 )
 def get_order_for_user(
     user_id: UUID,
-    service: OrderService = Depends(get_order_service),
+    service: Annotated[OrderService, Depends(get_order_service)],
 ):
     return list(service.get_orders_by_user_id(user_id=user_id))
 
@@ -76,7 +77,7 @@ def get_order_for_user(
 )
 def create_order(
     request: OrderCreate,
-    service: OrderService = Depends(get_order_service),
+    service: Annotated[OrderService, Depends(get_order_service)],
 ):
     return service.create_order(request=request)
 
@@ -89,6 +90,6 @@ def create_order(
 def update_order(
     id: UUID,
     request: OrderUpdateItems,
-    service: OrderService = Depends(get_order_service),
+    service: Annotated[OrderService, Depends(get_order_service)],
 ):
     return service.update_order_items(request=request)

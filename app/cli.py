@@ -1,3 +1,5 @@
+import sys
+
 import uvicorn
 
 from app.config import Environments, config
@@ -15,7 +17,7 @@ def main():
         logger.error(
             f"Host or port is not configured in the environment: host='{host}', port='{port}'"
         )
-        exit(1)
+        sys.exit(1)
 
     uvicorn.run(
         "app.main:app",
