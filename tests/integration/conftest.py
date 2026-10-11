@@ -11,6 +11,7 @@ from app.main import app
 # Use a completely isolated in-memory database
 TEST_DATABASE_URL = "sqlite:///:memory:"
 
+
 test_engine = create_engine(
     TEST_DATABASE_URL,
     connect_args={"check_same_thread": False},
@@ -53,12 +54,14 @@ def db_session() -> Generator[Session]:
 
 # ★ Provide a test client for all tests
 @pytest.fixture
-def test_app(db_session: Session) -> TestClient:
+def test_app(db_session: Session) -> Generator[TestClient]:
     def override_get_db():
-        try:
-            yield db_session
-        finally:
-            pass
+        yield db_session
 
     app.dependency_overrides[get_db] = override_get_db
-    return TestClient(app)
+
+    try:
+        with TestClient(app) as client:
+            yield client
+    finally:
+        app.dependency_overrides.pop(get_db, None)
